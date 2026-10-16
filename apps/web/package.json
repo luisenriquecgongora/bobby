@@ -1,0 +1,30 @@
+{
+  "name": "@openvenue/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@openvenue/core": "workspace:*",
+    "@openvenue/engine": "workspace:*",
+    "@openvenue/editor": "workspace:*",
+    "@openvenue/viewer": "workspace:*",
+    "@react-three/drei": "^9.102.6",
+    "@react-three/fiber": "^8.16.1",
+    "lucide-react": "^0.359.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/three": "^0.160.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.4.0",
+    "vite": "^5.1.6"
+  }
+}
