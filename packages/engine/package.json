@@ -1,5 +1,5 @@
 {
-  "name": "@openvenue/engine",
+  "name": "@bobby/engine",
   "version": "0.1.0",
   "description": "Three.js runtime, procedural geometry builders, PBR materials, and furniture definitions",
   "main": "./dist/index.js",
@@ -11,7 +11,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@openvenue/core": "workspace:*",
+    "@bobby/core": "workspace:*",
     "three": "^0.160.0"
   },
   "devDependencies": {

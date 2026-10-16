@@ -1,7 +1,7 @@
 /**
- * @openvenue/connector-plaato
+ * @bobby/connector-plaato
  *
- * Cloud synchronization adapter between OpenVenue Studio (desktop/web)
+ * Cloud synchronization adapter between Bobby Studio (desktop/web)
  * and PlaatoOS / Takient backend.
  */
 

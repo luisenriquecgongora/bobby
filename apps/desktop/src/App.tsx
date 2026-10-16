@@ -8,9 +8,9 @@ import {
   packVenueToZip,
   unpackVenueFromZip,
   VenueProject
-} from '@openvenue/core';
-import { ViewerTable, ViewerRoomElement } from '@openvenue/viewer';
-import { Viewport3D, WallPenTool, ImportedAssetResult } from '@openvenue/editor';
+} from '@bobby/core';
+import { ViewerTable, ViewerRoomElement } from '@bobby/viewer';
+import { Viewport3D, WallPenTool, ImportedAssetResult } from '@bobby/editor';
 import {
   Box,
   Layers,

@@ -1,7 +1,7 @@
 {
-  "name": "openvenue",
+  "name": "bobby",
   "private": true,
-  "description": "OpenVenue3D - Open-Source 3D Spatial Floorplanner & Object Constructor for Venues",
+  "description": "Bobby 🛠️ - Open-Source 3D Spatial Floorplanner & Object Constructor for Venues",
   "license": "MIT",
   "workspaces": [
     "apps/*",

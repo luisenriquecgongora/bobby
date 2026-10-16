@@ -1,5 +1,5 @@
-// @openvenue/core/src/index.ts
-// Public API for @openvenue/core
+// @bobby/core/src/index.ts
+// Public API for @bobby/core
 
 export * from './coordinates/coordinateConverter';
 export * from './types/index';

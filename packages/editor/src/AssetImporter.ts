@@ -1,10 +1,10 @@
-// @openvenue/editor/src/AssetImporter.ts
+// @bobby/editor/src/AssetImporter.ts
 // Drag-and-drop .glb / .gltf 3D model importer with automatic bounding box calculation & ground normalization.
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { metersToCm } from '@openvenue/core';
-import { ViewerRoomElement } from '@openvenue/viewer';
+import { metersToCm } from '@bobby/core';
+import { ViewerRoomElement } from '@bobby/viewer';
 
 export interface ImportedAssetResult {
   filename: string;

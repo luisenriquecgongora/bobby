@@ -1,4 +1,4 @@
-// @openvenue/core/src/format/venueFile.ts
+// @bobby/core/src/format/venueFile.ts
 // Standardized .venue project packaging engine (ZIP container of manifest.json, scene.json, and assets/)
 
 import JSZip from 'jszip';

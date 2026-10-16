@@ -1,5 +1,5 @@
-// @openvenue/editor/src/index.ts
-// Public API for @openvenue/editor
+// @bobby/editor/src/index.ts
+// Public API for @bobby/editor
 
 export * from './PrimitiveEditor';
 export * from './Viewport3D';

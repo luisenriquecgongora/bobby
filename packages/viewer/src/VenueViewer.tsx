@@ -1,4 +1,4 @@
-// @openvenue/viewer/src/VenueViewer.tsx
+// @bobby/viewer/src/VenueViewer.tsx
 // Ultra-lightweight, embeddable 3D venue room visualizer.
 
 import React, { useRef, useMemo, useEffect } from 'react';
@@ -16,8 +16,8 @@ import {
   cmToMeters,
   roomCoordsToWorld3D,
   degreesToRadians
-} from '@openvenue/core';
-import { createRoomObject, FloorMaterialBuilder } from '@openvenue/engine';
+} from '@bobby/core';
+import { createRoomObject, FloorMaterialBuilder } from '@bobby/engine';
 
 export interface ViewerTable {
   _id: string;

@@ -1,8 +1,8 @@
-// @openvenue/editor/src/PrimitiveEditor.tsx
+// @bobby/editor/src/PrimitiveEditor.tsx
 // Interactive primitive part editor (replaces the "coming soon" stub).
 
 import React, { useState } from 'react';
-import { GeometryPart, BoxParams, CylinderParams, SphereParams } from '@openvenue/core';
+import { GeometryPart, BoxParams, CylinderParams, SphereParams } from '@bobby/core';
 import { Box, Circle, CircleDot, X, Check } from 'lucide-react';
 
 interface PrimitiveEditorProps {

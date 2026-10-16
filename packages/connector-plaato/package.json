@@ -1,7 +1,7 @@
 {
-  "name": "@openvenue/connector-plaato",
+  "name": "@bobby/connector-plaato",
   "version": "0.1.0",
-  "description": "Safe cloud sync adapter connecting OpenVenue to PlaatoOS / Takient platform",
+  "description": "Safe cloud sync adapter connecting Bobby to PlaatoOS / Takient platform",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -11,7 +11,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@openvenue/core": "workspace:*"
+    "@bobby/core": "workspace:*"
   },
   "devDependencies": {
     "rimraf": "^5.0.5",

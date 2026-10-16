@@ -1,8 +1,8 @@
-// @openvenue/editor/src/WallPenTool.tsx
+// @bobby/editor/src/WallPenTool.tsx
 // The Sims-Style 2D CAD Wall-Pen Tool with grid snapping and real-time dimension measurements.
 
 import React, { useRef, useState, useEffect } from 'react';
-import { WallSegment, WallOpening, RoomDimensions } from '@openvenue/core';
+import { WallSegment, WallOpening, RoomDimensions } from '@bobby/core';
 import { PenTool, DoorClosed, Check, Trash2, X, Move } from 'lucide-react';
 
 interface WallPenToolProps {

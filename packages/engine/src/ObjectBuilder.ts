@@ -9,7 +9,7 @@ import {
   roomCoordsToWorld3D,
   degreesToRadians,
   scaleDimensions
-} from '@openvenue/core';
+} from '@bobby/core';
 import { getBaseDefinition } from './baseDefinitions';
 import { buildObjectFromDefinition } from './geometryBuilder';
 

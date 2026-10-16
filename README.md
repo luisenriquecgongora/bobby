@@ -1,4 +1,4 @@
-# Bobby 🛠️ (OpenVenue3D)
+# Bobby 🛠️
 
 > **"Can we build it? Yes we can!"**  
 > **Open-Source 3D Spatial Floorplanner & Object Constructor for Venues**  
@@ -56,10 +56,10 @@ flowchart TD
 
 ## 📦 Packages in this Monorepo
 
-- **`@openvenue/core`**: 3D spatial math, coordinate transforms (cm to meters), and `.venue` ZIP packaging.
-- **`@openvenue/engine`**: Three.js runtime, procedural geometry builder, PBR materials, and 10,000+ lines of furniture definitions.
-- **`@openvenue/viewer`**: Ultra-lightweight (<50KB) embeddable 3D customer viewer for web and mobile.
-- **`@openvenue/editor`**: Interactive 3D viewport with `TransformControls` gizmos (W/E/R), 2D Sims-style wall pen, and `.glb` drag-and-drop.
+- **`@bobby/core`**: 3D spatial math, coordinate transforms (cm to meters), and `.venue` ZIP packaging.
+- **`@bobby/engine`**: Three.js runtime, procedural geometry builder, PBR materials, and 10,000+ lines of furniture definitions.
+- **`@bobby/viewer`**: Ultra-lightweight (<50KB) embeddable 3D customer viewer for web and mobile.
+- **`@bobby/editor`**: Interactive 3D viewport with `TransformControls` gizmos (W/E/R), 2D Sims-style wall pen, and `.glb` drag-and-drop.
 - **`apps/desktop`**: Standalone native desktop application built with **Tauri v2** (Rust + WebView).
 - **`apps/web`**: Web studio application deployable as a PWA (`creator.plaatoos.com`).
 
@@ -69,8 +69,8 @@ flowchart TD
 
 ```bash
 # Clone the repository
-git clone https://github.com/takient/openvenue.git
-cd openvenue
+git clone https://github.com/luisenriquecgongora/bobby.git
+cd bobby
 
 # Install dependencies
 yarn install
@@ -79,7 +79,7 @@ yarn install
 yarn dev
 
 # Run the Tauri desktop app
-yarn workspace @openvenue/desktop tauri dev
+yarn workspace @bobby/desktop tauri dev
 ```
 
 ---

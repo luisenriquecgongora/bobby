@@ -1,5 +1,5 @@
-// @openvenue/engine/src/index.ts
-// Public API for @openvenue/engine
+// @bobby/engine/src/index.ts
+// Public API for @bobby/engine
 
 export * from './geometryBuilder';
 export * from './materialLibrary';

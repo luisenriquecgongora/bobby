@@ -1,4 +1,4 @@
-// @openvenue/core/src/types/index.ts
+// @bobby/core/src/types/index.ts
 // Universal 3D venue, room, fixture, and primitive type definitions.
 
 /**

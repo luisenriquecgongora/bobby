@@ -1,5 +1,5 @@
 {
-  "name": "@openvenue/editor",
+  "name": "@bobby/editor",
   "version": "0.1.0",
   "description": "2D/3D venue spatial constructor and parametric object editor with transform gizmos",
   "main": "./dist/index.js",
@@ -11,9 +11,9 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@openvenue/core": "workspace:*",
-    "@openvenue/engine": "workspace:*",
-    "@openvenue/viewer": "workspace:*",
+    "@bobby/core": "workspace:*",
+    "@bobby/engine": "workspace:*",
+    "@bobby/viewer": "workspace:*",
     "lucide-react": "^0.359.0"
   },
   "peerDependencies": {

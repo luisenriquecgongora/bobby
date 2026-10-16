@@ -1,5 +1,5 @@
 {
-  "name": "@openvenue/core",
+  "name": "@bobby/core",
   "version": "0.1.0",
   "description": "Core 3D spatial math, coordinate transforms, and venue scene schemas",
   "main": "./dist/index.js",

@@ -1,4 +1,4 @@
-// @openvenue/editor/src/Viewport3D.tsx
+// @bobby/editor/src/Viewport3D.tsx
 // Interactive 3D Viewport with TransformControls gizmos, arbitrary 3D wall rendering, and drag-and-drop GLB model importing.
 
 import React, { useRef, useState, useEffect, useMemo } from 'react';
@@ -14,9 +14,9 @@ import {
   world3DToRoomCoords,
   degreesToRadians,
   radiansToDegrees
-} from '@openvenue/core';
-import { ViewerTable, ViewerRoomElement } from '@openvenue/viewer';
-import { FloorMaterialBuilder, createRoomObject, buildWallSegmentMesh } from '@openvenue/engine';
+} from '@bobby/core';
+import { ViewerTable, ViewerRoomElement } from '@bobby/viewer';
+import { FloorMaterialBuilder, createRoomObject, buildWallSegmentMesh } from '@bobby/engine';
 import { importGLBAsset, ImportedAssetResult } from './AssetImporter';
 import { BoxSelect } from 'lucide-react';
 

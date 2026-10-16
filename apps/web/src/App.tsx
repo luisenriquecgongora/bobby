@@ -7,9 +7,9 @@ import {
   WallSegment,
   VenueProject,
   packVenueToZip
-} from '@openvenue/core';
-import { ViewerTable, ViewerRoomElement } from '@openvenue/viewer';
-import { Viewport3D, WallPenTool, ImportedAssetResult } from '@openvenue/editor';
+} from '@bobby/core';
+import { ViewerTable, ViewerRoomElement } from '@bobby/viewer';
+import { Viewport3D, WallPenTool, ImportedAssetResult } from '@bobby/editor';
 import {
   Box,
   Layers,
@@ -136,11 +136,11 @@ export default function App() {
     const project: VenueProject = {
       manifest: {
         version: '1.0.0',
-        name: 'OpenVenue Project',
+        name: 'Bobby Venue Project',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         dimensions: room,
-        generator: 'Plaato Studio Web v0.1.0',
+        generator: 'Bobby Web Studio v0.1.0',
       },
       scene: {
         room,

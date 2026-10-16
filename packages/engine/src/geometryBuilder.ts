@@ -12,7 +12,7 @@ import {
   TorusParams,
   PlaneParams,
   CapsuleParams
-} from '@openvenue/core';
+} from '@bobby/core';
 import { getMaterial, getMaterialWithColorOverride } from './materialLibrary';
 
 /**

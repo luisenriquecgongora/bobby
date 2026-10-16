@@ -1,4 +1,4 @@
-// @openvenue/core/src/coordinates/coordinateConverter.ts
+// @bobby/core/src/coordinates/coordinateConverter.ts
 // Mathematical coordinate system conversion utilities between 2D room units (cm) and 3D world units (meters).
 
 /**

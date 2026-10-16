@@ -1,4 +1,4 @@
-// @openvenue/engine/src/wallBuilder.ts
+// @bobby/engine/src/wallBuilder.ts
 // Procedural 3D Wall Generator supporting arbitrary angles and automatic door/window opening cutouts.
 
 import * as THREE from 'three';
@@ -8,7 +8,7 @@ import {
   RoomDimensions,
   cmToMeters,
   roomCoordsToWorld3D,
-} from '@openvenue/core';
+} from '@bobby/core';
 
 /**
  * Builds a Three.js Group representing a 3D wall segment with cutouts for doors/windows

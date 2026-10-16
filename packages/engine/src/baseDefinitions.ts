@@ -1,7 +1,7 @@
 // @takient/core/src/3d/baseDefinitions.ts
 // 3D Geometry Object Builder - Base Object Definitions Library
 
-import { BaseObjectDefinition, RoomElementType } from '@openvenue/core';
+import { BaseObjectDefinition, RoomElementType } from '@bobby/core';
 
 /**
  * Library of base object definitions

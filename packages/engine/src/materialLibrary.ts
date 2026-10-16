@@ -2,7 +2,7 @@
 // Material caching and management
 
 import * as THREE from 'three';
-import { MaterialConfig } from '@openvenue/core';
+import { MaterialConfig } from '@bobby/core';
 
 /**
  * Material cache - stores materials by color key for reuse

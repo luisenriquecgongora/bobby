@@ -1,5 +1,5 @@
 {
-  "name": "@openvenue/viewer",
+  "name": "@bobby/viewer",
   "version": "0.1.0",
   "description": "Lightweight, responsive 3D venue room visualizer for web and mobile",
   "main": "./dist/index.js",
@@ -11,8 +11,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@openvenue/core": "workspace:*",
-    "@openvenue/engine": "workspace:*"
+    "@bobby/core": "workspace:*",
+    "@bobby/engine": "workspace:*"
   },
   "peerDependencies": {
     "@react-three/drei": ">=9.80.0",

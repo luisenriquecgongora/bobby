@@ -1,8 +1,8 @@
 {
-  "name": "@openvenue/desktop",
+  "name": "@bobby/desktop",
   "version": "0.1.0",
   "private": true,
-  "description": "Plaato Studio Desktop - 100% Offline 3D Spatial Floorplanner & Object Constructor",
+  "description": "Bobby Desktop - 100% Offline 3D Spatial Floorplanner & Object Constructor",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,10 +10,10 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@openvenue/core": "workspace:*",
-    "@openvenue/engine": "workspace:*",
-    "@openvenue/editor": "workspace:*",
-    "@openvenue/viewer": "workspace:*",
+    "@bobby/core": "workspace:*",
+    "@bobby/engine": "workspace:*",
+    "@bobby/editor": "workspace:*",
+    "@bobby/viewer": "workspace:*",
     "@react-three/drei": "^9.102.6",
     "@react-three/fiber": "^8.16.1",
     "@tauri-apps/api": "^2.0.0",
