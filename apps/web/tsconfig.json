@@ -6,15 +6,19 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "baseUrl": ".",
+    "paths": {
+      "@bobby/core": ["../../packages/core/src"],
+      "@bobby/engine": ["../../packages/engine/src"],
+      "@bobby/editor": ["../../packages/editor/src"],
+      "@bobby/viewer": ["../../packages/viewer/src"],
+      "@bobby/connector-plaato": ["../../packages/connector-plaato/src"]
+    }
   },
   "include": ["src"]
 }

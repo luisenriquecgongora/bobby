@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   RoomDimensions,
   FloorMaterial,
@@ -11,14 +11,12 @@ import {
 import { ViewerTable, ViewerRoomElement } from '@bobby/viewer';
 import { Viewport3D, WallPenTool, ImportedAssetResult } from '@bobby/editor';
 import {
-  Box,
   Layers,
   Plus,
   Download,
   UploadCloud,
   Sliders,
-  PenTool,
-  BoxSelect
+  PenTool
 } from 'lucide-react';
 
 const INITIAL_ROOM: RoomDimensions = {
@@ -371,7 +369,7 @@ export default function App() {
             floorMaterial={INITIAL_FLOOR}
             selectedId={selectedId}
             selectedType={selectedType}
-            onSelect={(id, type) => { setSelectedId(id); setSelectedType(type); }}
+            onSelect={(id: string | null, type: 'table' | 'element' | null) => { setSelectedId(id); setSelectedType(type); }}
             onTableUpdate={handleTableUpdate}
             onElementUpdate={handleElementUpdate}
             onAssetImported={handleAssetImported}

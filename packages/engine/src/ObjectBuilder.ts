@@ -155,7 +155,7 @@ export function createRoomObject(
     const actualDimsM = {
       width: cmToMeters(actualDimsCm.width),
       depth: cmToMeters(actualDimsCm.depth),
-      height: cmToMeters(actualDimsCm.height),
+      height: cmToMeters(actualDimsCm.height ?? definition.defaultDimensions[2]),
     };
 
     const scale = scaleDimensions(actualDimsM, defaultDimsM);

@@ -406,7 +406,17 @@ export class FloorMaterialBuilder {
   /**
    * Create a Three.js material from a floor material configuration
    */
-  static createMaterial(config: FloorMaterial): THREE.MeshStandardMaterial {
+  static getMaterial(
+    config: FloorMaterial,
+    dimensions?: { width: number; depth: number }
+  ): THREE.MeshStandardMaterial {
+    return this.createMaterial(config, dimensions);
+  }
+
+  static createMaterial(
+    config: FloorMaterial,
+    _dimensions?: { width: number; depth: number }
+  ): THREE.MeshStandardMaterial {
     const material = new THREE.MeshStandardMaterial({
       metalness: config.metalness ?? 0.1,
       roughness: config.roughness ?? 0.9,

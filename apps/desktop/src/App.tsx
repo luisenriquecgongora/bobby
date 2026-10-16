@@ -379,7 +379,7 @@ export default function App() {
             floorMaterial={INITIAL_FLOOR}
             selectedId={selectedId}
             selectedType={selectedType}
-            onSelect={(id, type) => { setSelectedId(id); setSelectedType(type); }}
+            onSelect={(id: string | null, type: 'table' | 'element' | null) => { setSelectedId(id); setSelectedType(type); }}
             onTableUpdate={handleTableUpdate}
             onElementUpdate={handleElementUpdate}
             onAssetImported={handleAssetImported}
