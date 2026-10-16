@@ -201,13 +201,13 @@ export default function App() {
             justifyContent: 'center',
             color: '#0F172A',
             fontWeight: 800,
-            fontSize: '12px'
+            fontSize: '16px'
           }}>
-            PS
+            🛠️
           </div>
           <div>
-            <h1 style={{ fontSize: '14px', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              Plaato Studio Desktop
+            <h1 style={{ fontSize: '14px', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              Bobby <span style={{ fontSize: '11px', color: '#F59E0B' }}>Builder</span>
               <span style={{ fontSize: '10px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#064E3B', padding: '1px 6px', borderRadius: '4px' }}>
                 <HardDrive size={10} /> 100% Offline Native
               </span>

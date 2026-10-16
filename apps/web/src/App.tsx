@@ -179,18 +179,19 @@ export default function App() {
             width: '32px',
             height: '32px',
             borderRadius: '8px',
-            backgroundColor: '#14B8A6',
+            backgroundColor: '#F59E0B',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#0F172A',
             fontWeight: 'bold',
+            fontSize: '18px'
           }}>
-            3D
+            🛠️
           </div>
           <div>
-            <h1 style={{ fontSize: '15px', fontWeight: 600, letterSpacing: '0.02em', margin: 0 }}>
-              Plaato Studio <span style={{ fontSize: '11px', color: '#14B8A6', backgroundColor: '#134E4A', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>OpenVenue3D</span>
+            <h1 style={{ fontSize: '15px', fontWeight: 700, letterSpacing: '0.02em', margin: 0 }}>
+              Bobby <span style={{ fontSize: '11px', color: '#14B8A6', backgroundColor: '#134E4A', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>Venue Builder</span>
             </h1>
           </div>
         </div>

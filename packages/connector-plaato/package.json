@@ -1,0 +1,21 @@
+{
+  "name": "@openvenue/connector-plaato",
+  "version": "0.1.0",
+  "description": "Safe cloud sync adapter connecting OpenVenue to PlaatoOS / Takient platform",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@openvenue/core": "workspace:*"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.0"
+  }
+}

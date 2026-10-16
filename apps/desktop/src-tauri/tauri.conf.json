@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Plaato Studio",
+  "productName": "Bobby",
   "version": "0.1.0",
-  "identifier": "org.openvenue.studio",
+  "identifier": "org.openvenue.bobby",
   "build": {
     "beforeDevCommand": "yarn dev",
     "beforeBuildCommand": "yarn build",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Plaato Studio - OpenVenue3D",
+        "title": "Bobby — 3D Venue Constructor",
         "width": 1440,
         "height": 900,
         "minWidth": 1024,

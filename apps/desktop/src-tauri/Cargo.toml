@@ -1,7 +1,7 @@
 [package]
-name = "plaato-studio"
+name = "bobby"
 version = "0.1.0"
-description = "Plaato Studio Desktop - 100% Offline 3D Venue & Object Constructor"
+description = "Bobby - 100% Offline 3D Venue & Object Constructor"
 authors = ["PlaatoOS Team"]
 edition = "2021"
 

@@ -1,5 +1,6 @@
-# OpenVenue3D (Plaato Studio)
+# Bobby 🛠️ (OpenVenue3D)
 
+> **"Can we build it? Yes we can!"**  
 > **Open-Source 3D Spatial Floorplanner & Object Constructor for Venues**  
 > Build, customize, and visualize commercial venues, furniture, and seating maps 100% offline on your laptop or publish directly to PlaatoOS.
 
