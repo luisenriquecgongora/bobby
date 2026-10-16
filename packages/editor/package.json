@@ -11,9 +11,9 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@bobby/core": "workspace:*",
-    "@bobby/engine": "workspace:*",
-    "@bobby/viewer": "workspace:*",
+    "@bobby/core": "0.1.0",
+    "@bobby/engine": "0.1.0",
+    "@bobby/viewer": "0.1.0",
     "lucide-react": "^0.359.0"
   },
   "peerDependencies": {
