@@ -4,12 +4,13 @@ import {
   FloorMaterial,
   TableShape,
   TableCategory,
+  WallSegment,
   packVenueToZip,
   unpackVenueFromZip,
   VenueProject
 } from '@openvenue/core';
 import { ViewerTable, ViewerRoomElement } from '@openvenue/viewer';
-import { Viewport3D, PrimitiveEditor } from '@openvenue/editor';
+import { Viewport3D, WallPenTool, ImportedAssetResult } from '@openvenue/editor';
 import {
   Box,
   Layers,
@@ -19,7 +20,8 @@ import {
   UploadCloud,
   Sliders,
   CheckCircle,
-  HardDrive
+  HardDrive,
+  PenTool
 } from 'lucide-react';
 
 const INITIAL_ROOM: RoomDimensions = {
@@ -84,6 +86,9 @@ export default function App() {
   const [room, setRoom] = useState<RoomDimensions>(INITIAL_ROOM);
   const [tables, setTables] = useState<ViewerTable[]>(INITIAL_TABLES);
   const [elements, setElements] = useState<ViewerRoomElement[]>(INITIAL_ELEMENTS);
+  const [wallSegments, setWallSegments] = useState<WallSegment[]>([]);
+  const [isWallPenOpen, setIsWallPenOpen] = useState(false);
+  const [assets, setAssets] = useState<Record<string, Uint8Array>>({});
   const [selectedId, setSelectedId] = useState<string | null>('tbl_vip_a');
   const [selectedType, setSelectedType] = useState<'table' | 'element' | null>('table');
   const [statusMessage, setStatusMessage] = useState<string>('Offline Mode Active (Local Storage Only)');
@@ -103,6 +108,14 @@ export default function App() {
     );
   };
 
+  const handleAssetImported = (result: ImportedAssetResult) => {
+    setAssets((prev) => ({ ...prev, [result.filename]: result.binaryData }));
+    setElements((prev) => [...prev, result.newElement]);
+    setSelectedId(result.newElement._id);
+    setSelectedType('element');
+    setStatusMessage(`Imported 3D model "${result.filename}" (${result.dimensionsCm.width}x${result.dimensionsCm.depth}cm)`);
+  };
+
   // Offline Native Save (.venue file)
   const handleSaveVenueLocally = async () => {
     try {
@@ -120,12 +133,13 @@ export default function App() {
           floorMaterial: INITIAL_FLOOR,
           tables,
           elements,
+          walls: wallSegments as any,
         },
+        assets,
       };
 
       const blob = await packVenueToZip(project);
 
-      // In browser or Tauri webview, trigger download or native dialog
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -133,7 +147,7 @@ export default function App() {
       a.click();
       URL.revokeObjectURL(url);
 
-      setStatusMessage('Project saved locally as .venue file to laptop disk');
+      setStatusMessage(`Saved .venue file with ${tables.length} tables, ${wallSegments.length} walls, and ${Object.keys(assets).length} models`);
     } catch (err: any) {
       alert(`Save error: ${err.message}`);
     }
@@ -153,6 +167,8 @@ export default function App() {
         if (project.scene.room) setRoom(project.scene.room);
         if (project.scene.tables) setTables(project.scene.tables);
         if (project.scene.elements) setElements(project.scene.elements);
+        if (project.scene.walls) setWallSegments(project.scene.walls as any);
+        if (project.assets) setAssets(project.assets);
         setStatusMessage(`Loaded project "${project.manifest.name}" from .venue archive`);
       } catch (err: any) {
         alert(`Failed to load .venue file: ${err.message}`);
@@ -199,8 +215,27 @@ export default function App() {
           </div>
         </div>
 
-        {/* File Actions */}
+        {/* Tools & File Actions */}
         <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => setIsWallPenOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: isWallPenOpen ? '#14B8A6' : '#1E293B',
+              color: isWallPenOpen ? '#0F172A' : '#F8FAFC',
+              border: '1px solid #334155',
+              borderRadius: '6px',
+              padding: '5px 12px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              fontWeight: 500,
+            }}
+          >
+            <PenTool size={14} color={isWallPenOpen ? '#0F172A' : '#14B8A6'} /> Draw Walls ({wallSegments.length})
+          </button>
+
           <button
             onClick={handleLoadVenueLocally}
             style={{
@@ -270,6 +305,27 @@ export default function App() {
             <span style={{ fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Venue Objects</span>
           </div>
           <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
+            <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 600, padding: '4px', textTransform: 'uppercase' }}>Walls ({wallSegments.length})</div>
+            {wallSegments.map((w, idx) => (
+              <div
+                key={w.id}
+                onClick={() => setIsWallPenOpen(true)}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '6px 10px',
+                  borderRadius: '6px',
+                  backgroundColor: '#1E293B',
+                  cursor: 'pointer',
+                  marginBottom: '3px',
+                }}
+              >
+                <span style={{ fontSize: '12px', color: '#94A3B8' }}>Wall {idx + 1}</span>
+                <span style={{ fontSize: '10px', color: '#38BDF8' }}>{w.openings?.length || 0} cutouts</span>
+              </div>
+            ))}
+
+            <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 600, padding: '10px 4px 4px 4px', textTransform: 'uppercase' }}>Tables ({tables.length})</div>
             {tables.map((t) => (
               <div
                 key={t._id}
@@ -289,21 +345,44 @@ export default function App() {
                 <span style={{ fontSize: '10px', color: '#14B8A6' }}>{t.category}</span>
               </div>
             ))}
+
+            <div style={{ fontSize: '10px', color: '#64748B', fontWeight: 600, padding: '10px 4px 4px 4px', textTransform: 'uppercase' }}>Models & Fixtures ({elements.length})</div>
+            {elements.map((e) => (
+              <div
+                key={e._id}
+                onClick={() => { setSelectedId(e._id); setSelectedType('element'); }}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '7px 10px',
+                  borderRadius: '6px',
+                  backgroundColor: selectedId === e._id ? '#1E293B' : 'transparent',
+                  border: selectedId === e._id ? '1px solid #14B8A6' : '1px solid transparent',
+                  cursor: 'pointer',
+                  marginBottom: '3px',
+                }}
+              >
+                <span style={{ fontSize: '12px', color: '#F8FAFC' }}>{e.name}</span>
+                <span style={{ fontSize: '10px', color: '#A855F7' }}>{e.type}</span>
+              </div>
+            ))}
           </div>
         </aside>
 
-        {/* Viewport 3D */}
+        {/* Viewport 3D with Wall Rendering & Drag-and-Drop GLB Importer */}
         <main style={{ flex: 1, position: 'relative' }}>
           <Viewport3D
             roomDimensions={room}
             tables={tables}
             elements={elements}
+            wallSegments={wallSegments}
             floorMaterial={INITIAL_FLOOR}
             selectedId={selectedId}
             selectedType={selectedType}
             onSelect={(id, type) => { setSelectedId(id); setSelectedType(type); }}
             onTableUpdate={handleTableUpdate}
             onElementUpdate={handleElementUpdate}
+            onAssetImported={handleAssetImported}
           />
 
           {/* Bottom Status Bar */}
@@ -394,6 +473,15 @@ export default function App() {
           )}
         </aside>
       </div>
+
+      {/* Wall-Pen CAD Modal */}
+      <WallPenTool
+        roomDimensions={room}
+        wallSegments={wallSegments}
+        onWallsChange={setWallSegments}
+        isOpen={isWallPenOpen}
+        onClose={() => setIsWallPenOpen(false)}
+      />
     </div>
   );
 }

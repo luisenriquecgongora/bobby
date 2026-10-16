@@ -8,3 +8,4 @@ export * from './floorMaterialBuilder';
 export * from './floorMaterialTypes';
 export * from './proceduralTextures';
 export * from './ObjectBuilder';
+export * from './wallBuilder';

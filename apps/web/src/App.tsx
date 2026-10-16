@@ -3,20 +3,22 @@ import {
   RoomDimensions,
   FloorMaterial,
   TableShape,
-  TableCategory
+  TableCategory,
+  WallSegment,
+  VenueProject,
+  packVenueToZip
 } from '@openvenue/core';
 import { ViewerTable, ViewerRoomElement } from '@openvenue/viewer';
-import { Viewport3D, PrimitiveEditor } from '@openvenue/editor';
+import { Viewport3D, WallPenTool, ImportedAssetResult } from '@openvenue/editor';
 import {
   Box,
   Layers,
   Plus,
   Download,
   UploadCloud,
-  Eye,
   Sliders,
-  ChevronRight,
-  Maximize2
+  PenTool,
+  BoxSelect
 } from 'lucide-react';
 
 const INITIAL_ROOM: RoomDimensions = {
@@ -63,18 +65,6 @@ const INITIAL_TABLES: ViewerTable[] = [
     maxCapacity: 4,
     basePrice: 150,
   },
-  {
-    _id: 'table_3',
-    name: 'Cocktail High Table 3',
-    shape: TableShape.CIRCLE,
-    category: TableCategory.BAR,
-    position: { x: 1100, y: 700, z: 0 },
-    dimensions: { width: 80, depth: 80, height: 105 },
-    rotation: 0,
-    minCapacity: 2,
-    maxCapacity: 4,
-    basePrice: 200,
-  },
 ];
 
 const INITIAL_ELEMENTS: ViewerRoomElement[] = [
@@ -87,24 +77,17 @@ const INITIAL_ELEMENTS: ViewerRoomElement[] = [
     rotation: 0,
     color: '#8B5CF6',
   },
-  {
-    _id: 'elem_dj',
-    name: 'DJ Riser Stage',
-    type: 'stage',
-    position: { x: 800, y: 150, z: 0 },
-    dimensions: { width: 350, depth: 200, height: 60 },
-    rotation: 0,
-    color: '#EC4899',
-  },
 ];
 
 export default function App() {
   const [room] = useState<RoomDimensions>(INITIAL_ROOM);
   const [tables, setTables] = useState<ViewerTable[]>(INITIAL_TABLES);
   const [elements, setElements] = useState<ViewerRoomElement[]>(INITIAL_ELEMENTS);
+  const [wallSegments, setWallSegments] = useState<WallSegment[]>([]);
+  const [isWallPenOpen, setIsWallPenOpen] = useState(false);
+  const [assets, setAssets] = useState<Record<string, Uint8Array>>({});
   const [selectedId, setSelectedId] = useState<string | null>('table_1');
   const [selectedType, setSelectedType] = useState<'table' | 'element' | null>('table');
-  const [isPrimitiveEditorOpen, setIsPrimitiveEditorOpen] = useState(false);
 
   const selectedTable = tables.find((t) => t._id === selectedId);
   const selectedElement = elements.find((e) => e._id === selectedId);
@@ -138,6 +121,44 @@ export default function App() {
     setTables([...tables, newTable]);
     setSelectedId(newId);
     setSelectedType('table');
+  };
+
+  // Called when a user drops a .glb file onto the 3D viewport
+  const handleAssetImported = (result: ImportedAssetResult) => {
+    setAssets((prev) => ({ ...prev, [result.filename]: result.binaryData }));
+    setElements((prev) => [...prev, result.newElement]);
+    setSelectedId(result.newElement._id);
+    setSelectedType('element');
+  };
+
+  // Export .venue ZIP bundle containing manifest, scene, and embedded GLB models
+  const handleExportVenue = async () => {
+    const project: VenueProject = {
+      manifest: {
+        version: '1.0.0',
+        name: 'OpenVenue Project',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        dimensions: room,
+        generator: 'Plaato Studio Web v0.1.0',
+      },
+      scene: {
+        room,
+        floorMaterial: INITIAL_FLOOR,
+        tables,
+        elements,
+        walls: wallSegments as any,
+      },
+      assets,
+    };
+
+    const blob = await packVenueToZip(project);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `venue_project_${Date.now()}.venue`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -177,6 +198,25 @@ export default function App() {
         {/* Center Actions */}
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
+            onClick={() => setIsWallPenOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: isWallPenOpen ? '#14B8A6' : '#1E293B',
+              color: isWallPenOpen ? '#0F172A' : '#F8FAFC',
+              border: '1px solid #334155',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              fontSize: '13px',
+              cursor: 'pointer',
+              fontWeight: 500
+            }}
+          >
+            <PenTool size={16} color={isWallPenOpen ? '#0F172A' : '#14B8A6'} /> Draw Walls ({wallSegments.length})
+          </button>
+
+          <button
             onClick={handleAddTable}
             style={{
               display: 'flex',
@@ -199,24 +239,24 @@ export default function App() {
         {/* Cloud Sync & Export */}
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button
-            onClick={() => alert('Saved local .venue bundle to your laptop disk.')}
+            onClick={handleExportVenue}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               backgroundColor: '#1E293B',
               border: '1px solid #334155',
-              color: '#94A3B8',
+              color: '#F8FAFC',
               borderRadius: '8px',
               padding: '6px 12px',
               fontSize: '13px',
               cursor: 'pointer',
             }}
           >
-            <Download size={15} /> Export .venue
+            <Download size={15} color="#14B8A6" /> Export .venue ({Object.keys(assets).length} models)
           </button>
           <button
-            onClick={() => alert('Opt-In 3D Cloud Sync: Uploads clean JSON metadata and sends .glb models directly to Cloudflare R2.')}
+            onClick={() => alert('Opt-In 3D Cloud Sync: Uploads clean JSON metadata to api-takient and sends .glb models directly to Cloudflare R2.')}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -253,7 +293,28 @@ export default function App() {
           </div>
 
           <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
-            <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, padding: '4px 8px', textTransform: 'uppercase' }}>Tables ({tables.length})</div>
+            <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, padding: '4px 8px', textTransform: 'uppercase' }}>Walls ({wallSegments.length})</div>
+            {wallSegments.map((w, idx) => (
+              <div
+                key={w.id}
+                onClick={() => setIsWallPenOpen(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: '#1E293B',
+                  cursor: 'pointer',
+                  marginBottom: '4px',
+                }}
+              >
+                <span style={{ fontSize: '12px', color: '#94A3B8' }}>Wall Segment {idx + 1}</span>
+                <span style={{ fontSize: '10px', color: '#38BDF8' }}>{w.openings?.length || 0} doors</span>
+              </div>
+            ))}
+
+            <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, padding: '12px 8px 4px 8px', textTransform: 'uppercase' }}>Tables ({tables.length})</div>
             {tables.map((t) => (
               <div
                 key={t._id}
@@ -275,7 +336,7 @@ export default function App() {
               </div>
             ))}
 
-            <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, padding: '12px 8px 4px 8px', textTransform: 'uppercase' }}>Fixtures ({elements.length})</div>
+            <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, padding: '12px 8px 4px 8px', textTransform: 'uppercase' }}>Fixtures & Models ({elements.length})</div>
             {elements.map((e) => (
               <div
                 key={e._id}
@@ -299,18 +360,20 @@ export default function App() {
           </div>
         </aside>
 
-        {/* Center: 3D Viewport with Transform Gizmos */}
+        {/* Center: 3D Viewport with Transform Gizmos & GLB Drag-and-Drop */}
         <main style={{ flex: 1, position: 'relative' }}>
           <Viewport3D
             roomDimensions={room}
             tables={tables}
             elements={elements}
+            wallSegments={wallSegments}
             floorMaterial={INITIAL_FLOOR}
             selectedId={selectedId}
             selectedType={selectedType}
             onSelect={(id, type) => { setSelectedId(id); setSelectedType(type); }}
             onTableUpdate={handleTableUpdate}
             onElementUpdate={handleElementUpdate}
+            onAssetImported={handleAssetImported}
           />
         </main>
 
@@ -395,37 +458,13 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-
-                <div>
-                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Capacity</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginTop: '4px' }}>
-                    <div>
-                      <span style={{ fontSize: '10px', color: '#64748B' }}>Min Guests</span>
-                      <input
-                        type="number"
-                        value={selectedTable.minCapacity || 1}
-                        onChange={(e) => handleTableUpdate(selectedTable._id, { minCapacity: parseInt(e.target.value) || 1 })}
-                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px' }}
-                      />
-                    </div>
-                    <div>
-                      <span style={{ fontSize: '10px', color: '#64748B' }}>Max Guests</span>
-                      <input
-                        type="number"
-                        value={selectedTable.maxCapacity || 4}
-                        onChange={(e) => handleTableUpdate(selectedTable._id, { maxCapacity: parseInt(e.target.value) || 1 })}
-                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px' }}
-                      />
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
 
             {!selectedTable && selectedElement && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
-                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Fixture Name</label>
+                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Fixture / Model Name</label>
                   <input
                     type="text"
                     value={selectedElement.name}
@@ -444,6 +483,15 @@ export default function App() {
           </div>
         </aside>
       </div>
+
+      {/* Wall-Pen CAD Modal */}
+      <WallPenTool
+        roomDimensions={room}
+        wallSegments={wallSegments}
+        onWallsChange={setWallSegments}
+        isOpen={isWallPenOpen}
+        onClose={() => setIsWallPenOpen(false)}
+      />
     </div>
   );
 }

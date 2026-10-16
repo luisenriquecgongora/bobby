@@ -1,23 +1,24 @@
 // @openvenue/editor/src/Viewport3D.tsx
-// Interactive 3D Viewport with TransformControls gizmos (Translate W, Rotate E, Scale R) and grid snapping.
+// Interactive 3D Viewport with TransformControls gizmos, arbitrary 3D wall rendering, and drag-and-drop GLB model importing.
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid, TransformControls } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   RoomDimensions,
   FloorMaterial,
-  Wall,
+  WallSegment,
   cmToMeters,
-  metersToCm,
   roomCoordsToWorld3D,
   world3DToRoomCoords,
   degreesToRadians,
   radiansToDegrees
 } from '@openvenue/core';
 import { ViewerTable, ViewerRoomElement } from '@openvenue/viewer';
-import { FloorMaterialBuilder, createRoomObject } from '@openvenue/engine';
+import { FloorMaterialBuilder, createRoomObject, buildWallSegmentMesh } from '@openvenue/engine';
+import { importGLBAsset, ImportedAssetResult } from './AssetImporter';
+import { BoxSelect } from 'lucide-react';
 
 export type GizmoMode = 'translate' | 'rotate' | 'scale';
 
@@ -25,13 +26,14 @@ interface Viewport3DProps {
   roomDimensions: RoomDimensions;
   tables: ViewerTable[];
   elements: ViewerRoomElement[];
+  wallSegments?: WallSegment[];
   floorMaterial?: FloorMaterial;
-  walls?: Wall[];
   selectedId: string | null;
   selectedType: 'table' | 'element' | null;
   onSelect: (id: string | null, type: 'table' | 'element' | null) => void;
   onTableUpdate: (tableId: string, updates: Partial<ViewerTable>) => void;
   onElementUpdate: (elementId: string, updates: Partial<ViewerRoomElement>) => void;
+  onAssetImported?: (result: ImportedAssetResult) => void;
   gizmoMode?: GizmoMode;
   snapEnabled?: boolean;
 }
@@ -40,16 +42,19 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
   roomDimensions,
   tables,
   elements,
+  wallSegments = [],
   floorMaterial,
   selectedId,
   selectedType,
   onSelect,
   onTableUpdate,
   onElementUpdate,
+  onAssetImported,
   gizmoMode = 'translate',
   snapEnabled = true,
 }) => {
   const [activeGizmo, setActiveGizmo] = useState<GizmoMode>(gizmoMode);
+  const [isDragOver, setIsDragOver] = useState(false);
   const selectedMeshRef = useRef<THREE.Group>(null);
   const orbitRef = useRef<any>(null);
 
@@ -65,11 +70,66 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Drag and Drop 3D Model files (.glb / .gltf)
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    const glbFile = files.find((f) => /\.(glb|gltf)$/i.test(f.name));
+
+    if (glbFile && onAssetImported) {
+      try {
+        const result = await importGLBAsset(glbFile, {
+          x: roomDimensions.width / 2,
+          y: roomDimensions.depth / 2,
+        });
+        onAssetImported(result);
+      } catch (err: any) {
+        alert(`Failed to import 3D model: ${err.message}`);
+      }
+    }
+  };
+
   const widthM = cmToMeters(roomDimensions.width);
   const depthM = cmToMeters(roomDimensions.depth);
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '500px', backgroundColor: '#090D16' }}>
+    <div
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      style={{ position: 'relative', width: '100%', height: '100%', minHeight: '500px', backgroundColor: '#090D16' }}
+    >
+      {/* Drag & Drop Visual Overlay */}
+      {isDragOver && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundColor: 'rgba(20, 184, 166, 0.25)',
+          border: '3px dashed #14B8A6',
+          zIndex: 50,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+        }}>
+          <BoxSelect size={48} color="#14B8A6" />
+          <h2 style={{ color: '#F8FAFC', marginTop: '12px', fontSize: '20px' }}>Drop 3D Model (.glb / .gltf) Here</h2>
+          <p style={{ color: '#CCFBF1', fontSize: '13px' }}>Automatic scale detection & ground normalization</p>
+        </div>
+      )}
+
       {/* Gizmo Toolbar Overlay */}
       <div style={{
         position: 'absolute',
@@ -169,6 +229,12 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
             attach="material"
           />
         </mesh>
+
+        {/* 3D Wall Segments */}
+        {wallSegments.map((wall) => {
+          const wallGroup = buildWallSegmentMesh(wall, roomDimensions);
+          return <primitive key={wall.id} object={wallGroup} />;
+        })}
 
         {/* Tables */}
         {tables.map((table) => {

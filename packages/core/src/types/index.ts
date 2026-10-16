@@ -243,6 +243,25 @@ export function createDefaultWalls(): Wall[] {
   ];
 }
 
+export interface WallOpening {
+  id: string;
+  type: 'door' | 'window';
+  offset: number; // distance in cm from start point
+  width: number; // opening width in cm
+  height: number; // opening height in cm
+  elevation: number; // bottom sill height in cm (0 for doors)
+}
+
+export interface WallSegment {
+  id: string;
+  start: [number, number]; // [x, y] in cm (room coordinates)
+  end: [number, number]; // [x, y] in cm (room coordinates)
+  thickness?: number; // thickness in cm (default 15cm)
+  height?: number; // height in cm (default 300cm)
+  material?: WallMaterial;
+  openings?: WallOpening[];
+}
+
 // ==========================================
 // Floor Material Types
 // ==========================================
