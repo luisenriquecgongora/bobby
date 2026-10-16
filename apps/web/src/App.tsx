@@ -16,7 +16,8 @@ import {
   Download,
   UploadCloud,
   Sliders,
-  PenTool
+  PenTool,
+  MonitorDown
 } from 'lucide-react';
 
 const INITIAL_ROOM: RoomDimensions = {
@@ -237,6 +238,28 @@ export default function App() {
 
         {/* Cloud Sync & Export */}
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <a
+            href="https://github.com/luisenriquecgongora/bobby/releases/latest"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Download Bobby Desktop for Windows, macOS, or Linux"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#0F172A',
+              border: '1px solid #14B8A6',
+              color: '#14B8A6',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              fontSize: '13px',
+              fontWeight: 500,
+              textDecoration: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            <MonitorDown size={15} /> Download Desktop App
+          </a>
           <button
             onClick={handleExportVenue}
             style={{

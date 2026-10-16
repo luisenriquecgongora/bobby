@@ -2,7 +2,7 @@
 name = "bobby"
 version = "0.1.0"
 description = "Bobby - 100% Offline 3D Venue & Object Constructor"
-authors = ["PlaatoOS Team"]
+authors = ["Luis Enrique <luisenriquecgongora@gmail.com>"]
 edition = "2021"
 
 [build-dependencies]
