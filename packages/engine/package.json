@@ -1,0 +1,23 @@
+{
+  "name": "@openvenue/engine",
+  "version": "0.1.0",
+  "description": "Three.js runtime, procedural geometry builders, PBR materials, and furniture definitions",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@openvenue/core": "workspace:*",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.160.0",
+    "rimraf": "^5.0.5",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.0"
+  }
+}
