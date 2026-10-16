@@ -1,0 +1,17 @@
+[package]
+name = "plaato-studio"
+version = "0.1.0"
+description = "Plaato Studio Desktop - 100% Offline 3D Venue & Object Constructor"
+authors = ["PlaatoOS Team"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0", features = ["tray-icon"] }
+tauri-plugin-dialog = "2.0.0"
+tauri-plugin-fs = "2.0.0"
+tauri-plugin-deep-link = "2.0.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

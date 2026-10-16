@@ -1,0 +1,36 @@
+{
+  "name": "@openvenue/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plaato Studio Desktop - 100% Offline 3D Spatial Floorplanner & Object Constructor",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@openvenue/core": "workspace:*",
+    "@openvenue/engine": "workspace:*",
+    "@openvenue/editor": "workspace:*",
+    "@openvenue/viewer": "workspace:*",
+    "@react-three/drei": "^9.102.6",
+    "@react-three/fiber": "^8.16.1",
+    "@tauri-apps/api": "^2.0.0",
+    "@tauri-apps/plugin-dialog": "^2.0.0",
+    "@tauri-apps/plugin-fs": "^2.0.0",
+    "lucide-react": "^0.359.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/three": "^0.160.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.4.0",
+    "vite": "^5.1.6"
+  }
+}
