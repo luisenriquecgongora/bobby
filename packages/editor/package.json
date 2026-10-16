@@ -1,0 +1,37 @@
+{
+  "name": "@openvenue/editor",
+  "version": "0.1.0",
+  "description": "2D/3D venue spatial constructor and parametric object editor with transform gizmos",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --external react,react-dom,three,@react-three/fiber,@react-three/drei",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@openvenue/core": "workspace:*",
+    "@openvenue/engine": "workspace:*",
+    "@openvenue/viewer": "workspace:*",
+    "lucide-react": "^0.359.0"
+  },
+  "peerDependencies": {
+    "@react-three/drei": ">=9.80.0",
+    "@react-three/fiber": ">=8.15.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "three": ">=0.160.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/three": "^0.160.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^5.0.5",
+    "three": "^0.160.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.0"
+  }
+}
