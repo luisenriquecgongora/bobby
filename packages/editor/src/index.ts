@@ -7,3 +7,6 @@ export * from './WallPenTool';
 export * from './AssetImporter';
 export * from './PlaatoCloudModal';
 export * from './ChangelogModal';
+export * from './useSpatialValidation';
+export * from './SpatialStatusBadge';
+export * from './SpatialValidationDrawer';

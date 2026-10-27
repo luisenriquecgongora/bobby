@@ -1,10 +1,12 @@
 // @bobby/editor/src/Viewport3D.tsx
-// Interactive 3D Viewport with TransformControls gizmos, arbitrary 3D wall rendering, and drag-and-drop GLB model importing.
+// Interactive 3D Viewport with TransformControls gizmos, authoritative collision feedback,
+// GLB contact markers, arbitrary 3D wall rendering, and drag-and-drop GLB model importing.
 
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid, TransformControls } from '@react-three/drei';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
   RoomDimensions,
   FloorMaterial,
@@ -13,7 +15,8 @@ import {
   roomCoordsToWorld3D,
   world3DToRoomCoords,
   degreesToRadians,
-  radiansToDegrees
+  radiansToDegrees,
+  EngineCollisionContact,
 } from '@bobby/core';
 import { ViewerTable, ViewerRoomElement } from '@bobby/viewer';
 import { FloorMaterialBuilder, createRoomObject, buildWallSegmentMesh } from '@bobby/engine';
@@ -36,6 +39,10 @@ interface Viewport3DProps {
   onAssetImported?: (result: ImportedAssetResult) => void;
   gizmoMode?: GizmoMode;
   snapEnabled?: boolean;
+  collidingIds?: Set<string>;
+  collisionContacts?: EngineCollisionContact[];
+  assets?: Record<string, Uint8Array>;
+  authoritativeWallGLB?: ArrayBuffer | null;
 }
 
 export const Viewport3D: React.FC<Viewport3DProps> = ({
@@ -52,11 +59,34 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
   onAssetImported,
   gizmoMode = 'translate',
   snapEnabled = true,
+  collidingIds,
+  collisionContacts = [],
+  authoritativeWallGLB,
 }) => {
   const [activeGizmo, setActiveGizmo] = useState<GizmoMode>(gizmoMode);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [authoritativeWallScene, setAuthoritativeWallScene] = useState<THREE.Group | null>(null);
   const selectedMeshRef = useRef<THREE.Group>(null);
   const orbitRef = useRef<any>(null);
+
+  // Parse authoritative wall GLB when received from bobby-engine
+  useEffect(() => {
+    if (!authoritativeWallGLB) {
+      setAuthoritativeWallScene(null);
+      return;
+    }
+    const loader = new GLTFLoader();
+    loader.parse(
+      authoritativeWallGLB,
+      '',
+      (gltf) => {
+        setAuthoritativeWallScene(gltf.scene);
+      },
+      (err) => {
+        console.error('Failed to parse authoritative wall GLB:', err);
+      }
+    );
+  }, [authoritativeWallGLB]);
 
   // Keyboard shortcuts: W = translate, E = rotate, R = scale
   useEffect(() => {
@@ -232,15 +262,21 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
           />
         </mesh>
 
-        {/* 3D Wall Segments */}
-        {wallSegments.map((wall) => {
-          const wallGroup = buildWallSegmentMesh(wall, roomDimensions);
-          return <primitive key={wall.id} object={wallGroup} />;
-        })}
+        {/* 3D Wall Rendering: Authoritative GLB scene if present, otherwise procedural segment meshes */}
+        {authoritativeWallScene ? (
+          <primitive object={authoritativeWallScene} />
+        ) : (
+          wallSegments.map((wall) => {
+            const wallGroup = buildWallSegmentMesh(wall, roomDimensions);
+            return <primitive key={wall.id} object={wallGroup} />;
+          })
+        )}
 
         {/* Tables */}
         {tables.map((table) => {
           const isSelected = selectedId === table._id && selectedType === 'table';
+          const isColliding = collidingIds ? collidingIds.has(table._id) : false;
+
           const pos = roomCoordsToWorld3D(
             table.position,
             table.dimensions,
@@ -269,11 +305,19 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
                     <boxGeometry args={[wM, hM, dM]} />
                   )}
                   <meshStandardMaterial
-                    color={isSelected ? '#14B8A6' : '#F59E0B'}
-                    emissive={isSelected ? '#14B8A6' : '#000000'}
-                    emissiveIntensity={isSelected ? 0.3 : 0}
+                    color={isColliding ? '#EF4444' : isSelected ? '#14B8A6' : '#F59E0B'}
+                    emissive={isColliding ? '#DC2626' : isSelected ? '#14B8A6' : '#000000'}
+                    emissiveIntensity={isColliding ? 0.7 : isSelected ? 0.3 : 0}
                   />
                 </mesh>
+
+                {/* 3D Collision Halo Ring */}
+                {isColliding && (
+                  <mesh position={[0, -hM / 2 + 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                    <ringGeometry args={[Math.max(wM, dM) * 0.55, Math.max(wM, dM) * 0.65, 32]} />
+                    <meshBasicMaterial color="#EF4444" side={THREE.DoubleSide} />
+                  </mesh>
+                )}
               </group>
 
               {isSelected && selectedMeshRef.current && (
@@ -315,7 +359,20 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
         {/* Room Elements */}
         {elements.map((element) => {
           const isSelected = selectedId === element._id && selectedType === 'element';
+          const isColliding = collidingIds ? collidingIds.has(element._id) : false;
+
           const object = createRoomObject(element as any, roomDimensions as any);
+
+          const wM = cmToMeters(element.dimensions.width);
+          const dM = cmToMeters(element.dimensions.depth);
+          const hM = cmToMeters(element.dimensions.height ?? 100);
+
+          const worldPos = roomCoordsToWorld3D(
+            element.position,
+            element.dimensions,
+            { width: roomDimensions.width, depth: roomDimensions.depth },
+            true
+          );
 
           return (
             <React.Fragment key={element._id}>
@@ -326,8 +383,40 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
                 }}
               >
                 <primitive object={object} />
+
+                {/* Collision Visual Indicator for Elements */}
+                {isColliding && (
+                  <mesh position={[worldPos[0], worldPos[1] + hM / 2, worldPos[2]]}>
+                    <boxGeometry args={[wM * 1.05, hM * 1.05, dM * 1.05]} />
+                    <meshBasicMaterial color="#EF4444" wireframe />
+                  </mesh>
+                )}
               </group>
             </React.Fragment>
+          );
+        })}
+
+        {/* 3D Collision Contact Markers */}
+        {collisionContacts.map((contact, idx) => {
+          if (!contact.contact_point) return null;
+          return (
+            <group
+              key={`collision_pt_${idx}`}
+              position={[contact.contact_point.x, contact.contact_point.y, contact.contact_point.z]}
+            >
+              <mesh>
+                <sphereGeometry args={[0.09, 16, 16]} />
+                <meshStandardMaterial
+                  color="#EF4444"
+                  emissive="#EF4444"
+                  emissiveIntensity={1.0}
+                />
+              </mesh>
+              <mesh rotation={[Math.PI / 2, 0, 0]}>
+                <ringGeometry args={[0.12, 0.18, 24]} />
+                <meshBasicMaterial color="#FCA5A5" side={THREE.DoubleSide} />
+              </mesh>
+            </group>
           );
         })}
       </Canvas>

@@ -11,7 +11,16 @@ import {
   BUILT_IN_COMMITS
 } from '@bobby/core';
 import { ViewerTable, ViewerRoomElement } from '@bobby/viewer';
-import { Viewport3D, WallPenTool, ImportedAssetResult, PlaatoCloudModal, ChangelogModal } from '@bobby/editor';
+import {
+  Viewport3D,
+  WallPenTool,
+  ImportedAssetResult,
+  PlaatoCloudModal,
+  ChangelogModal,
+  SpatialStatusBadge,
+  SpatialValidationDrawer,
+  useSpatialValidation,
+} from '@bobby/editor';
 import { PlaatoConnector } from '@bobby/connector-plaato';
 import {
   Layers,
@@ -99,6 +108,22 @@ export default function App() {
   const [assets, setAssets] = useState<Record<string, Uint8Array>>({});
   const [selectedId, setSelectedId] = useState<string | null>('table_1');
   const [selectedType, setSelectedType] = useState<'table' | 'element' | null>('table');
+  const [isSpatialDrawerOpen, setIsSpatialDrawerOpen] = useState(false);
+  const [authoritativeWallGLB, setAuthoritativeWallGLB] = useState<ArrayBuffer | null>(null);
+
+  // Authoritative 3D Spatial Validation via bobby-engine microservice
+  const {
+    isEngineOnline,
+    isValidating,
+    validationResult,
+    collidingIds,
+    collisionContacts,
+    engineHealth,
+    engineUrl,
+    setEngineUrl,
+    revalidate: revalidateSpatial,
+    extrudeWallsGLB,
+  } = useSpatialValidation(room, tables, elements, wallSegments);
 
   // Automatic deep-link query parameter parsing
   useEffect(() => {
@@ -330,6 +355,16 @@ export default function App() {
           </button>
         </div>
 
+        {/* Spatial Microservice Status */}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <SpatialStatusBadge
+            isEngineOnline={isEngineOnline}
+            isValidating={isValidating}
+            validationResult={validationResult}
+            onClick={() => setIsSpatialDrawerOpen(true)}
+          />
+        </div>
+
         {/* Cloud Sync & Export */}
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <a
@@ -490,6 +525,10 @@ export default function App() {
             onTableUpdate={handleTableUpdate}
             onElementUpdate={handleElementUpdate}
             onAssetImported={handleAssetImported}
+            collidingIds={collidingIds}
+            collisionContacts={collisionContacts}
+            assets={assets}
+            authoritativeWallGLB={authoritativeWallGLB}
           />
         </main>
 
@@ -639,6 +678,30 @@ export default function App() {
       <ChangelogModal
         isOpen={isChangelogOpen}
         onClose={() => setIsChangelogOpen(false)}
+
+      />
+
+      {/* Authoritative Spatial Validation & Extrusion Drawer */}
+      <SpatialValidationDrawer
+        isOpen={isSpatialDrawerOpen}
+        onClose={() => setIsSpatialDrawerOpen(false)}
+        isEngineOnline={isEngineOnline}
+        isValidating={isValidating}
+        validationResult={validationResult}
+        engineHealth={engineHealth}
+        engineUrl={engineUrl}
+        onSetEngineUrl={setEngineUrl}
+        onRevalidate={revalidateSpatial}
+        onExtrudeWallsGLB={extrudeWallsGLB}
+        tables={tables}
+        elements={elements}
+        onSelectObject={(id, type) => {
+          setSelectedId(id);
+          setSelectedType(type);
+        }}
+        onUseAuthoritativeWalls={(glb) => {
+          setAuthoritativeWallGLB(glb);
+        }}
       />
     </div>
   );
