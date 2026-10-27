@@ -7,10 +7,12 @@ import {
   WallSegment,
   packVenueToZip,
   unpackVenueFromZip,
-  VenueProject
+  VenueProject,
+  APP_VERSION,
+  BUILT_IN_COMMITS
 } from '@bobby/core';
 import { ViewerTable, ViewerRoomElement } from '@bobby/viewer';
-import { Viewport3D, WallPenTool, ImportedAssetResult } from '@bobby/editor';
+import { Viewport3D, WallPenTool, ImportedAssetResult, ChangelogModal } from '@bobby/editor';
 import {
   Box,
   Layers,
@@ -21,7 +23,9 @@ import {
   Sliders,
   CheckCircle,
   HardDrive,
-  PenTool
+  PenTool,
+  GitCommit,
+  GitBranch
 } from 'lucide-react';
 
 const INITIAL_ROOM: RoomDimensions = {
@@ -88,6 +92,7 @@ export default function App() {
   const [elements, setElements] = useState<ViewerRoomElement[]>(INITIAL_ELEMENTS);
   const [wallSegments, setWallSegments] = useState<WallSegment[]>([]);
   const [isWallPenOpen, setIsWallPenOpen] = useState(false);
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [assets, setAssets] = useState<Record<string, Uint8Array>>({});
   const [selectedId, setSelectedId] = useState<string | null>('tbl_vip_a');
   const [selectedType, setSelectedType] = useState<'table' | 'element' | null>('table');
@@ -206,12 +211,35 @@ export default function App() {
             🛠️
           </div>
           <div>
-            <h1 style={{ fontSize: '14px', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              Bobby <span style={{ fontSize: '11px', color: '#F59E0B' }}>Builder</span>
-              <span style={{ fontSize: '10px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#064E3B', padding: '1px 6px', borderRadius: '4px' }}>
-                <HardDrive size={10} /> 100% Offline Native
-              </span>
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <h1 style={{ fontSize: '14px', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                Bobby <span style={{ fontSize: '11px', color: '#F59E0B' }}>Builder</span>
+                <span style={{ fontSize: '10px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#064E3B', padding: '1px 6px', borderRadius: '4px' }}>
+                  <HardDrive size={10} /> 100% Offline Native
+                </span>
+              </h1>
+              <button
+                onClick={() => setIsChangelogOpen(true)}
+                title="View release history & git commits"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  backgroundColor: '#1E293B',
+                  border: '1px solid #334155',
+                  color: '#94A3B8',
+                  borderRadius: '6px',
+                  padding: '2px 7px',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  marginLeft: '4px',
+                }}
+              >
+                <GitBranch size={11} color="#14B8A6" />
+                <span style={{ fontWeight: 600, color: '#F8FAFC' }}>v{APP_VERSION}</span>
+                <span style={{ fontFamily: 'monospace', color: '#64748B', fontSize: '10px' }}>({BUILT_IN_COMMITS[0]?.shortHash})</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -254,6 +282,24 @@ export default function App() {
             <FolderOpen size={14} color="#14B8A6" /> Open .venue
           </button>
 
+          <button
+            onClick={() => setIsChangelogOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#1E293B',
+              border: '1px solid #334155',
+              color: '#F8FAFC',
+              borderRadius: '6px',
+              padding: '5px 12px',
+              fontSize: '12px',
+              cursor: 'pointer',
+            }}
+            title="View changelog & git commit log"
+          >
+            <GitCommit size={14} color="#14B8A6" /> Commits
+          </button>
           <button
             onClick={handleSaveVenueLocally}
             style={{
@@ -481,6 +527,12 @@ export default function App() {
         onWallsChange={setWallSegments}
         isOpen={isWallPenOpen}
         onClose={() => setIsWallPenOpen(false)}
+      />
+
+      {/* Release & Commits Changelog Modal */}
+      <ChangelogModal
+        isOpen={isChangelogOpen}
+        onClose={() => setIsChangelogOpen(false)}
       />
     </div>
   );

@@ -4,3 +4,4 @@
 export * from './coordinates/coordinateConverter';
 export * from './types/index';
 export * from './format/venueFile';
+export * from './version/index';

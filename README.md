@@ -1,8 +1,12 @@
 # Bobby 🛠️
 
 > **"Can we build it? Yes we can!"**  
-> **Open-Source 3D Spatial Floorplanner & Object Constructor for Venues**  
+> **100% Offline 3D Spatial Floorplanner, CAD Architecture Tool & Object Constructor for Venues (Web Studio & Tauri Desktop)**  
 > Build, customize, and visualize commercial venues, furniture, and seating maps 100% offline on your laptop or publish directly to PlaatoOS.
+
+[![Version](https://img.shields.io/badge/version-v0.1.0-teal.svg)](https://github.com/luisenriquecgongora/bobby/releases)
+[![Tests](https://img.shields.io/badge/tests-12%20passing-emerald.svg)](https://github.com/luisenriquecgongora/bobby)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
@@ -56,10 +60,11 @@ flowchart TD
 
 ## 📦 Packages in this Monorepo
 
-- **`@bobby/core`**: 3D spatial math, coordinate transforms (cm to meters), and `.venue` ZIP packaging.
+- **`@bobby/core`**: 3D spatial math, coordinate transforms (cm to meters), `.venue` ZIP packaging, and version history.
 - **`@bobby/engine`**: Three.js runtime, procedural geometry builder, PBR materials, and 10,000+ lines of furniture definitions.
 - **`@bobby/viewer`**: Ultra-lightweight (<50KB) embeddable 3D customer viewer for web and mobile.
-- **`@bobby/editor`**: Interactive 3D viewport with `TransformControls` gizmos (W/E/R), 2D Sims-style wall pen, and `.glb` drag-and-drop.
+- **`@bobby/editor`**: Interactive 3D viewport with `TransformControls` gizmos (W/E/R), 2D Sims-style wall pen, `.glb` drag-and-drop, and Changelog / Commits modal.
+- **`@bobby/connector-plaato`**: Safe cloud sync adapter connecting Bobby to PlaatoOS / Takient platform with direct Cloudflare R2 presigned uploads.
 - **`apps/desktop`**: Standalone native desktop application built with **Tauri v2** (Rust + WebView).
 - **`apps/web`**: Web studio application deployable as a PWA (`creator.plaatoos.com`).
 
@@ -74,6 +79,12 @@ cd bobby
 
 # Install dependencies
 yarn install
+
+# Run automated unit tests (Vitest)
+yarn test
+
+# Run full monorepo typecheck
+yarn typecheck
 
 # Start the web studio
 yarn dev

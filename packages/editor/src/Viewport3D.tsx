@@ -201,8 +201,10 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
         <OrbitControls
           ref={orbitRef}
           makeDefault
-          minPolarAngle={degreesToRadians(15)}
-          maxPolarAngle={degreesToRadians(80)}
+          {...({
+            minPolarAngle: degreesToRadians(15),
+            maxPolarAngle: degreesToRadians(80),
+          } as any)}
         />
 
         <Grid

@@ -1,8 +1,9 @@
 {
   "name": "bobby",
   "private": true,
-  "description": "Bobby 🛠️ - Open-Source 3D Spatial Floorplanner & Object Constructor for Venues",
+  "description": "Bobby 🛠️ - 100% Offline 3D Spatial Floorplanner, CAD Architecture Tool & Object Constructor for Venues (Web PWA & Tauri Desktop)",
   "license": "MIT",
+  "packageManager": "yarn@1.22.10",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -18,6 +19,7 @@
   "devDependencies": {
     "rimraf": "^5.0.5",
     "turbo": "^2.0.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
   }
 }

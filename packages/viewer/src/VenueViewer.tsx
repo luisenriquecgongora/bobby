@@ -299,10 +299,12 @@ export const VenueViewer: React.FC<VenueViewerProps> = ({
 
         <OrbitControls
           makeDefault
-          minPolarAngle={degreesToRadians(20)}
-          maxPolarAngle={degreesToRadians(80)} // prevents going below floor
-          minDistance={2}
-          maxDistance={35}
+          {...({
+            minPolarAngle: degreesToRadians(20),
+            maxPolarAngle: degreesToRadians(80), // prevents going below floor
+            minDistance: 2,
+            maxDistance: 35,
+          } as any)}
         />
 
         {showGrid && (

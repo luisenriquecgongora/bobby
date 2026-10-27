@@ -23,7 +23,7 @@ export const PrimitiveEditor: React.FC<PrimitiveEditorProps> = ({
   const [partData, setPartData] = useState<GeometryPart>({ ...part });
 
   const handleParamChange = (field: string, value: number) => {
-    setPartData((prev) => ({
+    setPartData((prev: GeometryPart) => ({
       ...prev,
       params: {
         ...prev.params,
@@ -33,13 +33,17 @@ export const PrimitiveEditor: React.FC<PrimitiveEditorProps> = ({
   };
 
   const handlePositionChange = (axisIndex: number, value: number) => {
-    const newPos: [number, number, number] = [...partData.position];
+    const newPos: [number, number, number] = [
+      partData.position[0],
+      partData.position[1],
+      partData.position[2],
+    ];
     newPos[axisIndex] = value;
-    setPartData((prev) => ({ ...prev, position: newPos }));
+    setPartData((prev: GeometryPart) => ({ ...prev, position: newPos }));
   };
 
   const handleMaterialChange = (field: string, value: any) => {
-    setPartData((prev) => ({
+    setPartData((prev: GeometryPart) => ({
       ...prev,
       material: {
         ...prev.material,

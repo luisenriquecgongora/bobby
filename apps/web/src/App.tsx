@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   RoomDimensions,
   FloorMaterial,
@@ -6,10 +6,13 @@ import {
   TableCategory,
   WallSegment,
   VenueProject,
-  packVenueToZip
+  packVenueToZip,
+  APP_VERSION,
+  BUILT_IN_COMMITS
 } from '@bobby/core';
 import { ViewerTable, ViewerRoomElement } from '@bobby/viewer';
-import { Viewport3D, WallPenTool, ImportedAssetResult } from '@bobby/editor';
+import { Viewport3D, WallPenTool, ImportedAssetResult, PlaatoCloudModal, ChangelogModal } from '@bobby/editor';
+import { PlaatoConnector } from '@bobby/connector-plaato';
 import {
   Layers,
   Plus,
@@ -17,7 +20,10 @@ import {
   UploadCloud,
   Sliders,
   PenTool,
-  MonitorDown
+  MonitorDown,
+  Cloud,
+  GitCommit,
+  GitBranch
 } from 'lucide-react';
 
 const INITIAL_ROOM: RoomDimensions = {
@@ -79,14 +85,79 @@ const INITIAL_ELEMENTS: ViewerRoomElement[] = [
 ];
 
 export default function App() {
-  const [room] = useState<RoomDimensions>(INITIAL_ROOM);
+  const [room, setRoom] = useState<RoomDimensions>(INITIAL_ROOM);
+  const [floorMaterial, setFloorMaterial] = useState<FloorMaterial>(INITIAL_FLOOR);
   const [tables, setTables] = useState<ViewerTable[]>(INITIAL_TABLES);
   const [elements, setElements] = useState<ViewerRoomElement[]>(INITIAL_ELEMENTS);
   const [wallSegments, setWallSegments] = useState<WallSegment[]>([]);
   const [isWallPenOpen, setIsWallPenOpen] = useState(false);
+  const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
+  const [connector, setConnector] = useState<PlaatoConnector>(() => new PlaatoConnector());
+  const [linkedRoomId, setLinkedRoomId] = useState<string | null>(null);
+  const [linkedRoomName, setLinkedRoomName] = useState<string | null>(null);
   const [assets, setAssets] = useState<Record<string, Uint8Array>>({});
   const [selectedId, setSelectedId] = useState<string | null>('table_1');
   const [selectedType, setSelectedType] = useState<'table' | 'element' | null>('table');
+
+  // Automatic deep-link query parameter parsing
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tokenParam = params.get('token');
+    const bizParam = params.get('businessId');
+    const roomParam = params.get('roomId');
+    const apiParam = params.get('apiBase');
+    const tabParam = params.get('tab') || params.get('view');
+    if (tabParam === 'commits' || tabParam === 'changelog') {
+      setIsChangelogOpen(true);
+    }
+
+    if (tokenParam) {
+      const conn = new PlaatoConnector({
+        apiBase: apiParam || 'https://api-takient.onrender.com',
+        token: tokenParam,
+        businessId: bizParam || '',
+      });
+      setConnector(conn);
+      localStorage.setItem('plaato_token', tokenParam);
+      if (bizParam) localStorage.setItem('plaato_businessId', bizParam);
+      if (apiParam) localStorage.setItem('plaato_apiBase', apiParam);
+
+      if (roomParam) {
+        setLinkedRoomId(roomParam);
+        conn.getRoomMap(roomParam).then((roomData) => {
+          if (roomData.room) {
+            if (roomData.room.dimensions) {
+              setRoom({
+                width: roomData.room.dimensions.width,
+                depth: roomData.room.dimensions.depth,
+                height: roomData.room.dimensions.height,
+                unit: (roomData.room.dimensions.unit as any) || 'cm',
+              });
+            }
+            if (roomData.room.floorMaterial) setFloorMaterial(roomData.room.floorMaterial);
+            if (roomData.room.wallSegments) setWallSegments(roomData.room.wallSegments);
+            setLinkedRoomName(roomData.room.name || 'Plaato Room');
+          }
+          if (roomData.tables) setTables(roomData.tables);
+          if (roomData.elements) setElements(roomData.elements);
+        }).catch((err) => {
+          console.error('Error auto-importing room from deep link:', err);
+        });
+      }
+    } else {
+      const savedToken = localStorage.getItem('plaato_token');
+      const savedBiz = localStorage.getItem('plaato_businessId');
+      const savedBase = localStorage.getItem('plaato_apiBase');
+      if (savedToken) {
+        setConnector(new PlaatoConnector({
+          apiBase: savedBase || 'https://api-takient.onrender.com',
+          token: savedToken,
+          businessId: savedBiz || '',
+        }));
+      }
+    }
+  }, []);
 
   const selectedTable = tables.find((t) => t._id === selectedId);
   const selectedElement = elements.find((e) => e._id === selectedId);
@@ -189,9 +260,32 @@ export default function App() {
             🛠️
           </div>
           <div>
-            <h1 style={{ fontSize: '15px', fontWeight: 700, letterSpacing: '0.02em', margin: 0 }}>
-              Bobby <span style={{ fontSize: '11px', color: '#14B8A6', backgroundColor: '#134E4A', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>Venue Builder</span>
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h1 style={{ fontSize: '15px', fontWeight: 700, letterSpacing: '0.02em', margin: 0 }}>
+                Bobby <span style={{ fontSize: '11px', color: '#14B8A6', backgroundColor: '#134E4A', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>Venue Builder</span>
+              </h1>
+              <button
+                onClick={() => setIsChangelogOpen(true)}
+                title="View release version and git commits"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  backgroundColor: '#1E293B',
+                  border: '1px solid #334155',
+                  color: '#94A3B8',
+                  borderRadius: '6px',
+                  padding: '2px 7px',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  marginLeft: '4px'
+                }}
+              >
+                <GitBranch size={11} color="#14B8A6" />
+                <span style={{ fontWeight: 600, color: '#F8FAFC' }}>v{APP_VERSION}</span>
+                <span style={{ fontFamily: 'monospace', color: '#64748B', fontSize: '10px' }}>({BUILT_IN_COMMITS[0]?.shortHash})</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -278,12 +372,12 @@ export default function App() {
             <Download size={15} color="#14B8A6" /> Export .venue ({Object.keys(assets).length} models)
           </button>
           <button
-            onClick={() => alert('Opt-In 3D Cloud Sync: Uploads clean JSON metadata to api-takient and sends .glb models directly to Cloudflare R2.')}
+            onClick={() => setIsCloudModalOpen(true)}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              backgroundColor: '#14B8A6',
+              backgroundColor: linkedRoomName ? '#0D9488' : '#14B8A6',
               border: 'none',
               color: '#0F172A',
               borderRadius: '8px',
@@ -293,7 +387,7 @@ export default function App() {
               cursor: 'pointer',
             }}
           >
-            <UploadCloud size={16} /> Publish to PlaatoOS
+            <Cloud size={16} /> {linkedRoomName ? `Sync to ${linkedRoomName}` : 'PlaatoOS Cloud'}
           </button>
         </div>
       </header>
@@ -389,7 +483,7 @@ export default function App() {
             tables={tables}
             elements={elements}
             wallSegments={wallSegments}
-            floorMaterial={INITIAL_FLOOR}
+            floorMaterial={floorMaterial}
             selectedId={selectedId}
             selectedType={selectedType}
             onSelect={(id: string | null, type: 'table' | 'element' | null) => { setSelectedId(id); setSelectedType(type); }}
@@ -513,6 +607,38 @@ export default function App() {
         onWallsChange={setWallSegments}
         isOpen={isWallPenOpen}
         onClose={() => setIsWallPenOpen(false)}
+      />
+
+      {/* PlaatoOS Cloud Import & Sync Modal */}
+      <PlaatoCloudModal
+        isOpen={isCloudModalOpen}
+        onClose={() => setIsCloudModalOpen(false)}
+        connector={connector}
+        onConnectorUpdated={(c) => setConnector(c)}
+        currentRoom={{
+          dimensions: room,
+          floorMaterial,
+          wallSegments,
+          tables,
+          elements,
+        }}
+        onImportRoom={(data) => {
+          setLinkedRoomId(data.roomId);
+          setLinkedRoomName(data.roomName);
+          setRoom({ ...data.dimensions, unit: 'cm' });
+          if (data.floorMaterial) setFloorMaterial(data.floorMaterial);
+          if (data.wallSegments) setWallSegments(data.wallSegments);
+          setTables(data.tables);
+          setElements(data.elements);
+        }}
+        linkedRoomId={linkedRoomId}
+        linkedRoomName={linkedRoomName}
+      />
+
+      {/* Release & Commits Changelog Modal */}
+      <ChangelogModal
+        isOpen={isChangelogOpen}
+        onClose={() => setIsChangelogOpen(false)}
       />
     </div>
   );

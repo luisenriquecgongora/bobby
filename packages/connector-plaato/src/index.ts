@@ -25,6 +25,24 @@ export interface PresignResponse {
   expiresInSeconds: number;
 }
 
+export interface PlaatoBusiness {
+  _id: string;
+  name: string;
+  slug: string;
+  venues?: Array<{ _id: string; name: string; logoURL?: string }>;
+  myRoles?: string[];
+  planTier?: string;
+}
+
+export interface PlaatoRoomSummary {
+  _id: string;
+  name: string;
+  capacity?: number;
+  roomType?: string;
+  venueId?: string;
+  isActive?: boolean;
+}
+
 export interface RoomSyncPayload {
   roomId: string;
   dimensions?: {
@@ -72,22 +90,124 @@ export interface SyncResponse {
 }
 
 export class PlaatoConnector {
-  private apiBase: string;
-  private token: string;
-  private businessId: string;
+  public apiBase: string;
+  public token: string;
+  public businessId: string;
 
-  constructor(options: { apiBase: string; token: string; businessId: string }) {
-    this.apiBase = options.apiBase.replace(/\/$/, '');
-    this.token = options.token;
-    this.businessId = options.businessId;
+  constructor(options?: { apiBase?: string; token?: string; businessId?: string }) {
+    this.apiBase = (options?.apiBase || 'https://api-takient.onrender.com').replace(/\/$/, '');
+    this.token = options?.token || '';
+    this.businessId = options?.businessId || '';
   }
 
   private get headers(): Record<string, string> {
-    return {
+    const h: Record<string, string> = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.token}`,
-      'X-Business-Id': this.businessId,
     };
+    if (this.token) {
+      h.Authorization = `Bearer ${this.token}`;
+    }
+    if (this.businessId) {
+      h['X-Business-Id'] = this.businessId;
+    }
+    return h;
+  }
+
+  setBusinessId(businessId: string) {
+    this.businessId = businessId;
+  }
+
+  setToken(token: string) {
+    this.token = token;
+  }
+
+  setApiBase(apiBase: string) {
+    this.apiBase = apiBase.replace(/\/$/, '');
+  }
+
+  /**
+   * Authenticate with email & password against PlaatoOS API.
+   */
+  static async login(params: {
+    apiBase?: string;
+    email: string;
+    password: string;
+  }): Promise<{ token: string; user?: any }> {
+    const base = (params.apiBase || 'https://api-takient.onrender.com').replace(/\/$/, '');
+    const res = await fetch(`${base}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: params.email, password: params.password }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ msg: res.statusText }));
+      throw new Error(err.msg || err.message || 'Login failed');
+    }
+
+    const data = await res.json();
+    return { token: data.token, user: data.user };
+  }
+
+  /**
+   * Fetch all businesses the logged-in user owns or manages.
+   */
+  async getMyBusinesses(): Promise<PlaatoBusiness[]> {
+    const res = await fetch(`${this.apiBase}/client/business/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }));
+      throw new Error(err.message || 'Failed to fetch user businesses');
+    }
+
+    return res.json();
+  }
+
+  /**
+   * Fetch all rooms belonging to the active business/venue.
+   */
+  async getRooms(businessId?: string): Promise<PlaatoRoomSummary[]> {
+    const bizId = businessId || this.businessId;
+    const res = await fetch(`${this.apiBase}/client/room`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.token}`,
+        'X-Business-Id': bizId,
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }));
+      throw new Error(err.message || 'Failed to fetch rooms');
+    }
+
+    const data = await res.json();
+    return data.rooms || [];
+  }
+
+  /**
+   * Fetch 3D asset library for the business.
+   */
+  async listAssets(): Promise<any[]> {
+    const res = await fetch(`${this.apiBase}/client/room-3d/assets`, {
+      method: 'GET',
+      headers: this.headers,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }));
+      throw new Error(err.message || 'Failed to fetch 3D assets');
+    }
+
+    const data = await res.json();
+    return data.assets || [];
   }
 
   /**
@@ -110,7 +230,6 @@ export class PlaatoConnector {
 
   /**
    * Uploads a 3D model (.glb) or texture directly to Cloudflare R2 via presigned PUT.
-   * Zero server CPU/memory load on PlaatoOS API.
    */
   async uploadAsset(params: {
     file: Blob | Uint8Array;
@@ -173,7 +292,6 @@ export class PlaatoConnector {
 
   /**
    * Synchronizes room dimensions, multi-angle walls, 3D elements, and tables into PlaatoOS.
-   * Tables with paid customer tickets are protected from accidental removal.
    */
   async syncRoomMap(payload: RoomSyncPayload): Promise<SyncResponse> {
     const res = await fetch(`${this.apiBase}/client/room-3d/sync`, {

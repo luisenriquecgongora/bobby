@@ -11,7 +11,14 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@bobby/core": ["../core/src"],
+      "@bobby/engine": ["../engine/src"],
+      "@bobby/viewer": ["../viewer/src"],
+      "@bobby/connector-plaato": ["../connector-plaato/src"]
+    }
   },
   "include": ["src/**/*"]
 }
