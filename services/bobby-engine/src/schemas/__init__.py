@@ -1,0 +1,31 @@
+from .spatial import (
+    Vector3,
+    ApertureType,
+    WallAperture,
+    WallSegment,
+    FixtureItem,
+    VenueLayout,
+    CollisionContact,
+    ValidationResult,
+    JsonPatchOperation,
+    LayoutDiffRequest,
+    LayoutDiffResponse,
+    ExtrudeWallsRequest,
+    ExtrudeWallsResponse,
+)
+
+__all__ = [
+    "Vector3",
+    "ApertureType",
+    "WallAperture",
+    "WallSegment",
+    "FixtureItem",
+    "VenueLayout",
+    "CollisionContact",
+    "ValidationResult",
+    "JsonPatchOperation",
+    "LayoutDiffRequest",
+    "LayoutDiffResponse",
+    "ExtrudeWallsRequest",
+    "ExtrudeWallsResponse",
+]
