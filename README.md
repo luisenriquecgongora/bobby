@@ -6,12 +6,14 @@
 > Design, validate, and visualize commercial venues, furniture, and seating maps 100% offline or publish directly to PlaatoOS.
 
 [![Version](https://img.shields.io/badge/version-v0.1.0-teal.svg)](https://github.com/luisenriquecgongora/bobby/releases)
+[![Releases: Cloudflare R2](https://img.shields.io/badge/Releases-Cloudflare%20R2-orange.svg)](RELEASES.md)
 [![Tests](https://img.shields.io/badge/tests-39%20passing-emerald.svg)](https://github.com/luisenriquecgongora/bobby)
 [![Stack](https://img.shields.io/badge/stack-TypeScript%20%7C%20Python%203.12%20%7C%20FastAPI%20%7C%20Three.js-blue.svg)](https://github.com/luisenriquecgongora/bobby)
 [![Spatial Engine Roadmap](https://img.shields.io/badge/Roadmap-10%20Spatial%20Capabilities-purple.svg)](FUTURE_PLAN.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-> 🗺️ **Spatial Intelligence & Geometry Engine Roadmap**: Read our strategic architecture and 10 future proposals in [**FUTURE_PLAN.md**](FUTURE_PLAN.md).
+> 🗺️ **Spatial Intelligence & Geometry Engine Roadmap**: Read our strategic architecture and 10 future proposals in [**FUTURE_PLAN.md**](FUTURE_PLAN.md).  
+> 📦 **Cloudflare R2 Distribution & Auto-Updater**: Complete release architecture guide in [**RELEASES.md**](RELEASES.md).
 
 ---
 
