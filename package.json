@@ -1,7 +1,7 @@
 {
   "name": "bobby",
   "private": true,
-  "description": "Bobby 🛠️ - 100% Offline 3D Spatial Floorplanner, CAD Architecture Tool & Object Constructor for Venues (Web PWA & Tauri Desktop)",
+  "description": "Bobby 🛠️ - 3D Spatial CAD Venue Builder & Object Constructor: React/Three.js/Tauri Frontend + Python 3.12 Authoritative Geometry Microservice",
   "license": "MIT",
   "packageManager": "yarn@1.22.10",
   "workspaces": [
@@ -11,9 +11,12 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:engine": "uvicorn src.main:app --app-dir services/bobby-engine --reload",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:engine": "pytest services/bobby-engine",
+    "test:all": "turbo run test && pytest services/bobby-engine",
     "clean": "turbo run clean && rimraf node_modules"
   },
   "devDependencies": {

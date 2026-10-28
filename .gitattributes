@@ -1,0 +1,7 @@
+# GitHub Linguist configuration
+# Exclude procedural geometry data tables and textures from language statistics calculation
+packages/engine/src/baseDefinitions.ts linguist-generated=true
+packages/engine/src/proceduralTextures.ts linguist-generated=true
+
+# Ensure Python computational geometry engine files are prioritized
+services/bobby-engine/** linguist-detectable=true
