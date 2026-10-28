@@ -8,10 +8,10 @@
 [![Version](https://img.shields.io/badge/version-v0.1.0-teal.svg)](https://github.com/luisenriquecgongora/bobby/releases)
 [![Tests](https://img.shields.io/badge/tests-39%20passing-emerald.svg)](https://github.com/luisenriquecgongora/bobby)
 [![Stack](https://img.shields.io/badge/stack-TypeScript%20%7C%20Python%203.12%20%7C%20FastAPI%20%7C%20Three.js-blue.svg)](https://github.com/luisenriquecgongora/bobby)
-[![AI Capstone Plan](https://img.shields.io/badge/AI%20Capstone-10%20Proposals%20%26%20Roadmap-purple.svg)](FUTURE_PLAN.md)
+[![Spatial Engine Roadmap](https://img.shields.io/badge/Roadmap-10%20Spatial%20Capabilities-purple.svg)](FUTURE_PLAN.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-> 🎓 **Master of AI Capstone Strategic Plan**: Read the complete 10-proposal mathematical and algorithmic AI roadmap in [**FUTURE_PLAN.md**](FUTURE_PLAN.md).
+> 🗺️ **Spatial Intelligence & Geometry Engine Roadmap**: Read our strategic architecture and 10 future proposals in [**FUTURE_PLAN.md**](FUTURE_PLAN.md).
 
 ---
 
