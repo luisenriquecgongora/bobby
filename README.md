@@ -76,13 +76,14 @@ flowchart TD
 
 ---
 
-## 💰 Pricing & Storage Model
+## 💾 Storage & Cloud Architecture
 
-| Tier | Price | Included Storage | What You Can Do |
+| Environment | Cost | Storage | What You Can Do |
 |---|---|---|---|
-| **Bobby Studio (Offline Open Source)** | **$0 (Free Forever)** | **Unlimited Local Disk** | Design venue layouts, draw 2D walls, place tables with 3D gizmos, validate collisions with `bobby-engine`, import `.glb` models, and save `.venue` files on your computer. |
-| **PlaatoOS Cloud 3D (Standard Included)** | **Included in Business Plan** | **50 MB Cloud Storage** | Publish your 3D venue online so guests can view photorealistic VIP sofas, bars, and book tables online. |
-| **Cloud Storage Expansion (Opt-In Addon)** | **$5 / month per 100 MB** *(or 500 Coins)* | **Up to 1 GB+** | For mega-venues, casinos, and hotels with dozens of high-poly 3D furniture models. Hard quota guard prevents accidental overages. |
+| **Bobby Studio (Offline & Standalone)** | **Free / Open Source** | **Unlimited Local Disk** | Design venue layouts, draw 2D walls, place tables with 3D gizmos, validate collisions with `bobby-engine`, import `.glb` models, and save `.venue` files directly on your computer. |
+| **PlaatoOS Cloud Sync (Optional Integration)** | **Handled via PlaatoOS** | **Managed by PlaatoOS Plan** | Connect your PlaatoOS account to sync 3D venue floorplans online so guests can view photorealistic VIP seating, bars, and book tables through the PlaatoOS platform. |
+
+> ℹ️ **Cloud Hosting & Quotas**: All cloud hosting, tenant permissions, 3D storage quotas, and customer booking portals are managed directly through the user's **PlaatoOS / Takient** account and subscription plan. Bobby itself is 100% free, runs locally, and requires zero paid add-ons.
 
 ---
 
