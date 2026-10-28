@@ -1,7 +1,12 @@
 # GitHub Linguist configuration
-# Exclude procedural geometry data tables and textures from language statistics calculation
-packages/engine/src/baseDefinitions.ts linguist-generated=true
-packages/engine/src/proceduralTextures.ts linguist-generated=true
+# Vendor frontend client applications and UI rendering packages so Python is the primary language
+apps/** linguist-vendored=true
+packages/engine/** linguist-vendored=true
+packages/editor/** linguist-vendored=true
+packages/viewer/** linguist-vendored=true
+packages/connector-plaato/** linguist-vendored=true
 
-# Ensure Python computational geometry engine files are prioritized
+# Ensure Python computational geometry and spatial AI microservice are highlighted as primary
 services/bobby-engine/** linguist-detectable=true
+services/bobby-engine/** linguist-vendored=false
+*.py linguist-detectable=true
