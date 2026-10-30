@@ -1,3 +1,6 @@
+# Auto-normalize line endings
+* text=auto eol=lf
+
 # GitHub Linguist configuration
 # Vendor frontend client applications and UI rendering packages so Python is the primary language
 apps/** linguist-vendored=true
@@ -10,3 +13,16 @@ packages/connector-plaato/** linguist-vendored=true
 services/bobby-engine/** linguist-detectable=true
 services/bobby-engine/** linguist-vendored=false
 *.py linguist-detectable=true
+
+# Collapse lockfiles and build outputs in PRs and git diffs
+*lock.yaml linguist-generated=true
+package-lock.json linguist-generated=true
+yarn.lock linguist-generated=true
+pnpm-lock.yaml linguist-generated=true
+dist/** linguist-generated=true
+build/** linguist-generated=true
+out/** linguist-generated=true
+*.min.js linguist-generated=true
+*.min.css linguist-generated=true
+*.generated.* linguist-generated=true
+*.d.ts.map linguist-generated=true
