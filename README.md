@@ -10,7 +10,7 @@
 [![Tests](https://img.shields.io/badge/tests-39%20passing-emerald.svg)](https://github.com/luisenriquecgongora/bobby)
 [![Stack](https://img.shields.io/badge/stack-TypeScript%20%7C%20Python%203.12%20%7C%20FastAPI%20%7C%20Three.js-blue.svg)](https://github.com/luisenriquecgongora/bobby)
 [![Spatial Engine Roadmap](https://img.shields.io/badge/Roadmap-10%20Spatial%20Capabilities-purple.svg)](FUTURE_PLAN.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![License: PolyForm Shield 1.0.0](https://img.shields.io/badge/License-PolyForm%20Shield%201.0.0-blue.svg)](LICENSE)
 
 > 🗺️ **Spatial Intelligence & Geometry Engine Roadmap**: Read our strategic architecture and 10 future proposals in [**FUTURE_PLAN.md**](FUTURE_PLAN.md).  
 > 📦 **Cloudflare R2 Distribution & Auto-Updater**: Complete release architecture guide in [**RELEASES.md**](RELEASES.md).
@@ -136,4 +136,4 @@ Interactive OpenAPI documentation for `bobby-engine` is available at `http://loc
 
 ## 📄 License
 
-MIT License — free for personal and commercial use.
+Licensed under the [PolyForm Shield License 1.0.0](LICENSE). Free for personal, internal, and non-competing commercial use. Prohibits direct commercial competition.

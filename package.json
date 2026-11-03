@@ -2,7 +2,7 @@
   "name": "bobby",
   "private": true,
   "description": "Bobby 🛠️ - 3D Spatial CAD Venue Builder & Object Constructor: React/Three.js/Tauri Frontend + Python 3.12 Authoritative Geometry Microservice",
-  "license": "MIT",
+  "license": "LicenseRef-PolyForm-Shield-1.0.0",
   "packageManager": "yarn@1.22.10",
   "workspaces": [
     "apps/*",
