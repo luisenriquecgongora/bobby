@@ -11,10 +11,10 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@bobby/connector-plaato": "0.1.0",
-    "@bobby/core": "0.1.0",
-    "@bobby/engine": "0.1.0",
-    "@bobby/viewer": "0.1.0",
+    "@bobby/connector-plaato": "*",
+    "@bobby/core": "*",
+    "@bobby/engine": "*",
+    "@bobby/viewer": "*",
     "lucide-react": "^0.359.0"
   },
   "peerDependencies": {

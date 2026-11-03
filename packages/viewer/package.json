@@ -11,8 +11,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@bobby/core": "0.1.0",
-    "@bobby/engine": "0.1.0"
+    "@bobby/core": "*",
+    "@bobby/engine": "*"
   },
   "peerDependencies": {
     "@react-three/drei": ">=9.80.0",
