@@ -6,7 +6,7 @@ Uses Trimesh CollisionManager with a robust, zero-dependency Separating Axis /
 """
 
 import math
-from typing import Any, List, Tuple, Dict, Optional, Set
+from typing import Any, List, Tuple, Dict, Set
 import numpy as np
 import trimesh
 from shapely.geometry import Polygon
@@ -15,7 +15,6 @@ from ..schemas.spatial import (
     FixtureItem,
     WallSegment,
     VenueLayout,
-    Vector3,
 )
 
 

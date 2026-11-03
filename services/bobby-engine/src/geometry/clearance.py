@@ -7,12 +7,11 @@ Shapely boundary distance algorithms.
 """
 
 import math
-from typing import List, Tuple, Dict, Any, Optional
+from typing import List, Tuple, Dict, Optional
 import numpy as np
 from scipy.spatial import KDTree
-from shapely.geometry import Polygon
 
-from ..schemas.spatial import FixtureItem, WallSegment, VenueLayout
+from ..schemas.spatial import VenueLayout
 from .collision import SpatialCollisionEngine
 from .extrusion import WallExtrusionEngine
 

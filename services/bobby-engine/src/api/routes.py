@@ -8,12 +8,10 @@ import math
 import time
 from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, Query, Response, status
-from fastapi.responses import JSONResponse
 
 from ..schemas.spatial import (
     VenueLayout,
     ValidationResult,
-    WallSegment,
     ExtrudeWallsRequest,
     ExtrudeWallsResponse,
     LayoutDiffRequest,

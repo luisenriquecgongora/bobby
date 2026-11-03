@@ -6,14 +6,13 @@ Uses Shapely 2D footprint buffering and constructive solid partitioning to extru
 Exports optimized Trimesh geometry and binary GLB streams.
 """
 
-import io
 import math
 from typing import List, Tuple, Dict, Any, Optional
 import numpy as np
 import trimesh
 from shapely.geometry import LineString, Polygon
 
-from ..schemas.spatial import WallSegment, WallAperture, Vector3
+from ..schemas.spatial import WallSegment, Vector3
 
 
 class WallExtrusionEngine:
