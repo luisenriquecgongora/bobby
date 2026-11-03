@@ -24,7 +24,7 @@ describe('SpatialEngineClient', () => {
       fcl_accelerated: true,
     };
 
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => mockHealth,
     } as any);
@@ -32,7 +32,7 @@ describe('SpatialEngineClient', () => {
     const res = await client.checkHealth();
     expect(res.service).toBe('bobby-engine');
     expect(res.memory_mb).toBe(45.2);
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       'http://localhost:8000/health',
       expect.objectContaining({ signal: expect.any(AbortSignal) })
     );
@@ -51,7 +51,7 @@ describe('SpatialEngineClient', () => {
       },
     };
 
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => mockValidationResult,
     } as any);
@@ -63,7 +63,7 @@ describe('SpatialEngineClient', () => {
     });
 
     expect(result.is_valid).toBe(true);
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       'http://localhost:8000/v1/spatial/validate',
       expect.objectContaining({
         method: 'POST',
@@ -73,7 +73,7 @@ describe('SpatialEngineClient', () => {
   });
 
   it('throws on non-ok HTTP responses with error text', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 422,
       text: async () => 'Unprocessable Entity: Missing walls',
