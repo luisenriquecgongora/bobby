@@ -55,6 +55,7 @@ Dependency direction: `core` <- `engine` <- `viewer` <- `editor` <- `apps`; `edi
 - Web studio: `yarn workspace @bobby/web dev`
 - Geometry service: `yarn dev:engine` (port 8000); the client reads `BOBBY_ENGINE_URL`, default `http://localhost:8000`
 - Python setup: `cd services/bobby-engine && uv venv && uv pip install -r requirements.txt`
+- Release: every push to `master` updates the "chore: release vX.Y.Z" PR (version bumps in all packages + `CHANGELOG.md`, from commit types: `feat` = minor, `fix` = patch while below 1.0). Merging that PR tags the release and runs `release.yml`. Do not bump versions or tag by hand.
 
 ### 8. Gotchas
 - `typecheck` and `test` depend on `^build` in `turbo.json`: packages resolve each other through `dist/`, so a stale or missing build shows up as "Cannot find module '@bobby/core'".
