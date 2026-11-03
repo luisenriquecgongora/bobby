@@ -48,7 +48,7 @@ All commits must follow:
 | `apps/web`, `apps/desktop` | Vite web studio and Tauri desktop studio; both compose the packages above |
 | `services/bobby-engine` | FastAPI geometry service: `GET /health`, `POST /v1/spatial/validate`, `/extrude-walls`, `/diff` |
 
-Dependency direction: `core` <- `engine` <- `viewer` / `editor` <- `apps`. Packages never import from apps.
+Dependency direction: `core` <- `engine` <- `viewer` <- `editor` <- `apps`; `editor` also uses `connector-plaato`. Packages never import from apps.
 
 ### 7. Commands
 - Install: `yarn install` (re-run after moving or renaming the repo: workspace links are absolute)
