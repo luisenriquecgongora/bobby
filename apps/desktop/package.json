@@ -11,11 +11,11 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@bobby/connector-plaato": "0.1.0",
-    "@bobby/core": "0.1.0",
-    "@bobby/editor": "0.1.0",
-    "@bobby/engine": "0.1.0",
-    "@bobby/viewer": "0.1.0",
+    "@bobby/connector-plaato": "*",
+    "@bobby/core": "*",
+    "@bobby/editor": "*",
+    "@bobby/engine": "*",
+    "@bobby/viewer": "*",
     "@react-three/drei": "^9.102.6",
     "@react-three/fiber": "^8.16.1",
     "@tauri-apps/api": "^2.0.0",
