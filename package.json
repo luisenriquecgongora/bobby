@@ -12,6 +12,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:engine": "uvicorn src.main:app --app-dir services/bobby-engine --reload",
+    "verify": "python scripts/verify.py",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
