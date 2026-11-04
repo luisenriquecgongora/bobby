@@ -1,5 +1,6 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
+from src.config import settings
 from src.main import app
 from src.schemas.spatial import VenueLayout, FixtureItem, Vector3
 
@@ -12,7 +13,7 @@ async def test_health_check():
         data = res.json()
         assert data["status"] == "ok"
         assert data["service"] == "bobby-engine"
-        assert data["version"] == "0.1.0"
+        assert data["version"] == settings.VERSION
         assert "uptime_seconds" in data
 
 
