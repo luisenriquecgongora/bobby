@@ -21,6 +21,7 @@ for a check the change touches. Quote failures exactly.
 
 ## 3. Correctness
 
+- Does a change to the packages or a flow (validation, saving, sync) update `docs/ARCHITECTURE.md` and its diagrams (`AGENTS.md`, section 11)?
 - Does every behavior change come with a test (`__tests__/*.test.ts` next to the source, or `services/bobby-engine/tests/`) that fails without it?
 - Units: meters in geometry and the service, centimeters in venue element dimensions (`cmToMeters`); axes X = width, Y = height, Z = depth.
 - Old venue files still load: `RoomElementType` values and venue file fields are persisted, so they are never renamed or removed (`packages/core/src/format/`).
