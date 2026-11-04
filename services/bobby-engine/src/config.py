@@ -9,7 +9,7 @@ from typing import List
 
 class EngineConfig:
     SERVICE_NAME: str = "bobby-engine"
-    VERSION: str = "0.1.0"
+    VERSION: str = "0.1.0"  # x-release-please-version
     HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
     DEBUG: bool = os.getenv("DEBUG", "false").lower() in ("true", "1", "yes")

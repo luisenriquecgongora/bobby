@@ -58,7 +58,9 @@
           "type": "toml",
           "path": "services/bobby-engine/pyproject.toml",
           "jsonpath": "$.project.version"
-        }
+        },
+        "services/bobby-engine/src/config.py",
+        "services/bobby-engine/src/__init__.py"
       ]
     }
   }
