@@ -47,6 +47,7 @@ All commits must follow:
 | `packages/connector-plaato` | Sync adapter to the PlaatoOS / Takient backend |
 | `apps/web`, `apps/desktop` | Vite web studio and Tauri desktop studio; both compose the packages above |
 | `services/bobby-engine` | FastAPI geometry service: `GET /health`, `POST /v1/spatial/validate`, `/extrude-walls`, `/diff` |
+| `docs/ARCHITECTURE.md` | Colored map of the packages, from a drawing to a validated venue, and saving and syncing. Start here |
 | `.agents/skills/` | Task playbooks for any coding agent (`SKILL.md` format): `add-furniture-definition`, `add-geometry-endpoint`, `review-change`. Read the matching one before starting such a task. Add new skills here only; `.claude/skills/<name>` is a symlink to each (Claude Code reads only that folder), and `verify.py` checks the links. |
 
 Dependency direction: `core` <- `engine` <- `viewer` <- `editor` <- `apps`; `editor` also uses `connector-plaato`. Packages never import from apps.
@@ -76,3 +77,10 @@ Instructions live only in this file and skills only in `.agents/skills/`; every 
   2. Add its skills folder to `SKILL_MIRRORS` in `scripts/verify.py`, then run `python scripts/verify.py --only skills --fix` to create the symlinks.
   3. Confirm the tool sees the skills: ask it to list its available skills (e.g. `opencode debug skill`, `codex exec`, `claude -p`, `agy -p`).
 - Never copy a skill into a tool's folder; link it, so there is one copy to keep current.
+
+### 11. Documentation & Traceability
+Code changes arrive faster than people can read them, so a person must be able to follow every change from the docs and the history alone.
+- **Explain visually:** describe structure and flows with text plus a colored Mermaid diagram (GitHub renders it) and a legend for the colors; use the palette in `docs/ARCHITECTURE.md`. Write for an engineer new to the repo: define terms and say why, not only what.
+- **Keep the map current:** `docs/ARCHITECTURE.md` shows the repo's parts and how data flows between them. A change that adds, removes or rewires a part updates that diagram in the same pull request.
+- **Explain every pull request:** what changed and why, how it was verified, and, when a structure or flow changed, a small diagram of the new shape.
+- **One intent per commit:** someone reading the history commit by commit must be able to tell what each one did and why (see section 4).
