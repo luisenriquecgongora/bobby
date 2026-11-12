@@ -128,10 +128,14 @@ export default function App() {
   // Automatic deep-link query parameter parsing
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const tokenParam = params.get('token');
-    const bizParam = params.get('businessId');
-    const roomParam = params.get('roomId');
-    const apiParam = params.get('apiBase');
+    const tokenParam = params.get('token') || localStorage.getItem('plaato_token');
+    const bizParam = params.get('businessId') || localStorage.getItem('plaato_businessId');
+    const apiParam = params.get('apiBase') || localStorage.getItem('plaato_apiBase');
+
+    // Support roomId as query param (?roomId=...) or path parameter (/room/:roomId)
+    const pathnameMatch = window.location.pathname.match(/\/room\/([a-f0-9]+)/i);
+    const roomParam = params.get('roomId') || (pathnameMatch ? pathnameMatch[1] : null);
+
     const tabParam = params.get('tab') || params.get('view');
     if (tabParam === 'commits' || tabParam === 'changelog') {
       setIsChangelogOpen(true);
@@ -169,17 +173,6 @@ export default function App() {
         }).catch((err) => {
           console.error('Error auto-importing room from deep link:', err);
         });
-      }
-    } else {
-      const savedToken = localStorage.getItem('plaato_token');
-      const savedBiz = localStorage.getItem('plaato_businessId');
-      const savedBase = localStorage.getItem('plaato_apiBase');
-      if (savedToken) {
-        setConnector(new PlaatoConnector({
-          apiBase: savedBase || 'https://api-takient.onrender.com',
-          token: savedToken,
-          businessId: savedBiz || '',
-        }));
       }
     }
   }, []);
