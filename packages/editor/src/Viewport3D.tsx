@@ -67,6 +67,7 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
   const [isDragOver, setIsDragOver] = useState(false);
   const [authoritativeWallScene, setAuthoritativeWallScene] = useState<THREE.Group | null>(null);
   const selectedMeshRef = useRef<THREE.Group>(null);
+  const selectedElementRef = useRef<THREE.Group>(null);
   const orbitRef = useRef<any>(null);
 
   // Parse authoritative wall GLB when received from bobby-engine
@@ -367,16 +368,24 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
           const dM = cmToMeters(element.dimensions.depth);
           const hM = cmToMeters(element.dimensions.height ?? 100);
 
+          const useDirectElevation = element.type === 'custom' || element.type === 'lighting';
           const worldPos = roomCoordsToWorld3D(
             element.position,
             element.dimensions,
             { width: roomDimensions.width, depth: roomDimensions.depth },
-            true
+            useDirectElevation
           );
+
+          // Reset local group transforms so the parent group controls positioning & gizmos cleanly
+          object.position.set(0, 0, 0);
+          object.rotation.y = 0;
 
           return (
             <React.Fragment key={element._id}>
               <group
+                ref={isSelected ? selectedElementRef : null}
+                position={worldPos}
+                rotation={[0, degreesToRadians(element.rotation), 0]}
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelect(element._id, 'element');
@@ -384,14 +393,59 @@ export const Viewport3D: React.FC<Viewport3DProps> = ({
               >
                 <primitive object={object} />
 
+                {/* Selection Highlight Wireframe Bounding Box */}
+                {isSelected && (
+                  <mesh position={[0, useDirectElevation ? hM / 2 : 0, 0]}>
+                    <boxGeometry args={[wM * 1.04, hM * 1.04, dM * 1.04]} />
+                    <meshBasicMaterial color="#14B8A6" wireframe transparent opacity={0.65} />
+                  </mesh>
+                )}
+
                 {/* Collision Visual Indicator for Elements */}
                 {isColliding && (
-                  <mesh position={[worldPos[0], worldPos[1] + hM / 2, worldPos[2]]}>
-                    <boxGeometry args={[wM * 1.05, hM * 1.05, dM * 1.05]} />
+                  <mesh position={[0, useDirectElevation ? hM / 2 : 0, 0]}>
+                    <boxGeometry args={[wM * 1.06, hM * 1.06, dM * 1.06]} />
                     <meshBasicMaterial color="#EF4444" wireframe />
                   </mesh>
                 )}
               </group>
+
+              {isSelected && selectedElementRef.current && (
+                <TransformControls
+                  object={selectedElementRef.current}
+                  mode={activeGizmo}
+                  translationSnap={snapEnabled ? 0.1 : undefined} // 10cm snap
+                  rotationSnap={snapEnabled ? Math.PI / 12 : undefined} // 15° snap
+                  onMouseDown={() => {
+                    if (orbitRef.current) orbitRef.current.enabled = false;
+                  }}
+                  onMouseUp={() => {
+                    if (orbitRef.current) orbitRef.current.enabled = true;
+                    if (selectedElementRef.current) {
+                      const newWorldPos: [number, number, number] = [
+                        selectedElementRef.current.position.x,
+                        selectedElementRef.current.position.y,
+                        selectedElementRef.current.position.z,
+                      ];
+                      const newRoomCoords = world3DToRoomCoords(
+                        newWorldPos,
+                        element.dimensions,
+                        { width: roomDimensions.width, depth: roomDimensions.depth }
+                      );
+                      const newRotYDeg = Math.round(radiansToDegrees(selectedElementRef.current.rotation.y));
+
+                      onElementUpdate(element._id, {
+                        position: {
+                          x: Math.round(newRoomCoords.x),
+                          y: Math.round(newRoomCoords.y),
+                          z: element.position?.z ?? 0,
+                        },
+                        rotation: newRotYDeg,
+                      });
+                    }
+                  }}
+                />
+              )}
             </React.Fragment>
           );
         })}

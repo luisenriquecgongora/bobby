@@ -4,6 +4,8 @@ import {
   FloorMaterial,
   TableShape,
   TableCategory,
+  RoomElementType,
+  CustomGeometry,
   WallSegment,
   VenueProject,
   packVenueToZip,
@@ -17,6 +19,7 @@ import {
   ImportedAssetResult,
   PlaatoCloudModal,
   ChangelogModal,
+  ShapeEditorModal,
   SpatialStatusBadge,
   SpatialValidationDrawer,
   useSpatialValidation,
@@ -32,7 +35,11 @@ import {
   MonitorDown,
   Cloud,
   GitCommit,
-  GitBranch
+  GitBranch,
+  Trash2,
+  Sparkles,
+  Palette,
+  Box,
 } from 'lucide-react';
 
 const INITIAL_ROOM: RoomDimensions = {
@@ -102,6 +109,7 @@ export default function App() {
   const [isWallPenOpen, setIsWallPenOpen] = useState(false);
   const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
+  const [isShapeEditorOpen, setIsShapeEditorOpen] = useState(false);
   const [connector, setConnector] = useState<PlaatoConnector>(() => new PlaatoConnector());
   const [linkedRoomId, setLinkedRoomId] = useState<string | null>(null);
   const [linkedRoomName, setLinkedRoomName] = useState<string | null>(null);
@@ -209,6 +217,50 @@ export default function App() {
     setTables([...tables, newTable]);
     setSelectedId(newId);
     setSelectedType('table');
+  };
+
+  const handleAddElement = (type: RoomElementType = RoomElementType.BAR_COUNTER) => {
+    const newId = `elem_${Date.now()}`;
+    const newElement: ViewerRoomElement = {
+      _id: newId,
+      name: `${type.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())} ${elements.length + 1}`,
+      type,
+      position: { x: 600, y: 600, z: 0 },
+      dimensions: { width: 220, depth: 100, height: 90 },
+      rotation: 0,
+      color: '#14B8A6',
+    };
+    setElements([...elements, newElement]);
+    setSelectedId(newId);
+    setSelectedType('element');
+  };
+
+  const handleDeleteTable = (tableId: string) => {
+    setTables((prev) => prev.filter((t) => t._id !== tableId));
+    if (selectedId === tableId) {
+      setSelectedId(null);
+      setSelectedType(null);
+    }
+  };
+
+  const handleDeleteElement = (elementId: string) => {
+    setElements((prev) => prev.filter((e) => e._id !== elementId));
+    if (selectedId === elementId) {
+      setSelectedId(null);
+      setSelectedType(null);
+    }
+  };
+
+  const handleSaveCustomGeometry = (
+    customGeometry: CustomGeometry,
+    updatedDimensions?: { width: number; depth: number; height: number }
+  ) => {
+    if (!selectedElement) return;
+    handleElementUpdate(selectedElement._id, {
+      type: RoomElementType.CUSTOM,
+      customGeometry,
+      ...(updatedDimensions ? { dimensions: updatedDimensions } : {}),
+    });
   };
 
   // Called when a user drops a .glb file onto the 3D viewport
@@ -345,6 +397,25 @@ export default function App() {
             }}
           >
             <Plus size={16} color="#14B8A6" /> Add Table
+          </button>
+
+          <button
+            onClick={() => handleAddElement(RoomElementType.BAR_COUNTER)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#1E293B',
+              border: '1px solid #334155',
+              color: '#F8FAFC',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              fontSize: '13px',
+              cursor: 'pointer',
+              fontWeight: 500
+            }}
+          >
+            <Plus size={16} color="#A855F7" /> Add Fixture
           </button>
         </div>
 
@@ -542,30 +613,69 @@ export default function App() {
           <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
             {selectedTable && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '11px', color: '#14B8A6', fontWeight: 700, textTransform: 'uppercase' }}>
+                    Table Properties
+                  </span>
+                  <button
+                    onClick={() => handleDeleteTable(selectedTable._id)}
+                    title="Delete Table"
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#EF4444',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      fontSize: '11px',
+                    }}
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button>
+                </div>
+
                 <div>
                   <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Table Name</label>
                   <input
                     type="text"
                     value={selectedTable.name}
                     onChange={(e) => handleTableUpdate(selectedTable._id, { name: e.target.value })}
-                    style={{ width: '100%', marginTop: '4px', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', marginTop: '4px', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '8px', fontSize: '13px' }}
                   />
                 </div>
 
-                <div>
-                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Category</label>
-                  <select
-                    value={selectedTable.category}
-                    onChange={(e) => handleTableUpdate(selectedTable._id, { category: e.target.value as any })}
-                    style={{ width: '100%', marginTop: '4px', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '8px' }}
-                  >
-                    <option value="standard">Standard</option>
-                    <option value="vip">VIP</option>
-                    <option value="bar">Bar</option>
-                    <option value="balcony">Balcony</option>
-                    <option value="booth">Booth</option>
-                    <option value="lounge">Lounge</option>
-                  </select>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Shape</label>
+                    <select
+                      value={selectedTable.shape}
+                      onChange={(e) => handleTableUpdate(selectedTable._id, { shape: e.target.value as any })}
+                      style={{ width: '100%', marginTop: '4px', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '8px', fontSize: '12px' }}
+                    >
+                      <option value={TableShape.RECTANGLE}>Rectangle</option>
+                      <option value={TableShape.CIRCLE}>Circle</option>
+                      <option value={TableShape.SQUARE}>Square</option>
+                      <option value={TableShape.CUSTOM}>Custom</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Category</label>
+                    <select
+                      value={selectedTable.category}
+                      onChange={(e) => handleTableUpdate(selectedTable._id, { category: e.target.value as any })}
+                      style={{ width: '100%', marginTop: '4px', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '8px', fontSize: '12px' }}
+                    >
+                      <option value={TableCategory.STANDARD}>Standard</option>
+                      <option value={TableCategory.VIP}>VIP</option>
+                      <option value={TableCategory.BAR}>Bar</option>
+                      <option value={TableCategory.BALCONY}>Balcony</option>
+                      <option value={TableCategory.BOOTH}>Booth</option>
+                      <option value={TableCategory.LOUNGE}>Lounge</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -579,7 +689,7 @@ export default function App() {
                         onChange={(e) => handleTableUpdate(selectedTable._id, {
                           dimensions: { ...selectedTable.dimensions, width: parseFloat(e.target.value) || 50 }
                         })}
-                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px' }}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
                       />
                     </div>
                     <div>
@@ -590,7 +700,7 @@ export default function App() {
                         onChange={(e) => handleTableUpdate(selectedTable._id, {
                           dimensions: { ...selectedTable.dimensions, depth: parseFloat(e.target.value) || 50 }
                         })}
-                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px' }}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
                       />
                     </div>
                     <div>
@@ -601,9 +711,96 @@ export default function App() {
                         onChange={(e) => handleTableUpdate(selectedTable._id, {
                           dimensions: { ...selectedTable.dimensions, height: parseFloat(e.target.value) || 50 }
                         })}
-                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px' }}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
                       />
                     </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Position (cm)</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginTop: '4px' }}>
+                    <div>
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>X</span>
+                      <input
+                        type="number"
+                        value={selectedTable.position.x}
+                        onChange={(e) => handleTableUpdate(selectedTable._id, {
+                          position: { ...selectedTable.position, x: parseFloat(e.target.value) || 0 }
+                        })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>Y</span>
+                      <input
+                        type="number"
+                        value={selectedTable.position.y}
+                        onChange={(e) => handleTableUpdate(selectedTable._id, {
+                          position: { ...selectedTable.position, y: parseFloat(e.target.value) || 0 }
+                        })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>Z (Elev)</span>
+                      <input
+                        type="number"
+                        value={selectedTable.position.z || 0}
+                        onChange={(e) => handleTableUpdate(selectedTable._id, {
+                          position: { ...selectedTable.position, z: parseFloat(e.target.value) || 0 }
+                        })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Rotation</label>
+                    <span style={{ fontSize: '11px', color: '#14B8A6' }}>{selectedTable.rotation}°</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="359"
+                    value={selectedTable.rotation}
+                    onChange={(e) => handleTableUpdate(selectedTable._id, { rotation: parseInt(e.target.value) || 0 })}
+                    style={{ width: '100%', marginTop: '4px', accentColor: '#14B8A6' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Capacity</label>
+                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '4px' }}>
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        value={selectedTable.minCapacity || 2}
+                        onChange={(e) => handleTableUpdate(selectedTable._id, { minCapacity: parseInt(e.target.value) || 1 })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                      <span style={{ color: '#64748B' }}>-</span>
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        value={selectedTable.maxCapacity || 4}
+                        onChange={(e) => handleTableUpdate(selectedTable._id, { maxCapacity: parseInt(e.target.value) || 1 })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Base Price ($)</label>
+                    <input
+                      type="number"
+                      value={selectedTable.basePrice || 0}
+                      onChange={(e) => handleTableUpdate(selectedTable._id, { basePrice: parseFloat(e.target.value) || 0 })}
+                      style={{ width: '100%', marginTop: '4px', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                    />
                   </div>
                 </div>
               </div>
@@ -611,20 +808,245 @@ export default function App() {
 
             {!selectedTable && selectedElement && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '11px', color: '#A855F7', fontWeight: 700, textTransform: 'uppercase' }}>
+                    Fixture / Element
+                  </span>
+                  <button
+                    onClick={() => handleDeleteElement(selectedElement._id)}
+                    title="Delete Fixture"
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#EF4444',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      fontSize: '11px',
+                    }}
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button>
+                </div>
+
                 <div>
-                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Fixture / Model Name</label>
+                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Fixture Name</label>
                   <input
                     type="text"
                     value={selectedElement.name}
                     onChange={(e) => handleElementUpdate(selectedElement._id, { name: e.target.value })}
-                    style={{ width: '100%', marginTop: '4px', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', marginTop: '4px', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '8px', fontSize: '13px' }}
                   />
                 </div>
+
                 <div>
-                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Type</label>
-                  <span style={{ display: 'block', marginTop: '4px', fontSize: '13px', color: '#F8FAFC', background: '#1E293B', padding: '8px', borderRadius: '6px' }}>
-                    {selectedElement.type}
-                  </span>
+                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Element Type</label>
+                  <select
+                    value={selectedElement.type}
+                    onChange={(e) => handleElementUpdate(selectedElement._id, { type: e.target.value as any })}
+                    style={{ width: '100%', marginTop: '4px', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '8px', fontSize: '12px' }}
+                  >
+                    <option value={RoomElementType.BAR_COUNTER}>Bar Counter</option>
+                    <option value={RoomElementType.STAGE}>Stage Platform</option>
+                    <option value={RoomElementType.DJ_BOOTH}>DJ Performance Booth</option>
+                    <option value={RoomElementType.SOFA}>Sofa / Lounge</option>
+                    <option value={RoomElementType.CHAIR}>Chair</option>
+                    <option value={RoomElementType.PLANT}>Plant / Greenery</option>
+                    <option value={RoomElementType.TV}>TV / Digital Screen</option>
+                    <option value={RoomElementType.COLUMN}>Pillar / Column</option>
+                    <option value={RoomElementType.DOOR}>Doorway</option>
+                    <option value={RoomElementType.WINDOW}>Window</option>
+                    <option value={RoomElementType.LIGHTING}>Neon / Lighting Fixture</option>
+                    <option value={RoomElementType.STAIRS}>Stairs</option>
+                    <option value={RoomElementType.CUSTOM}>Custom 3D Shape</option>
+                    <option value={RoomElementType.RUG}>Rug / Carpet</option>
+                    <option value={RoomElementType.DECORATION}>Decoration</option>
+                    <option value={RoomElementType.BATHROOM_FIXTURE}>Bathroom Fixture</option>
+                    <option value={RoomElementType.TECH_DEVICES}>Audio & Tech Devices</option>
+                    <option value={RoomElementType.BOTTLES}>Bottle Display</option>
+                    <option value={RoomElementType.BAR_EQUIPMENT}>Bar Equipment</option>
+                  </select>
+                </div>
+
+                {/* 3D Shape / Geometry Builder CTA */}
+                <div style={{ backgroundColor: '#1E293B', border: '1px solid #334155', borderRadius: '10px', padding: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Sparkles size={14} color="#14B8A6" />
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#F8FAFC', textTransform: 'uppercase' }}>
+                        3D Geometry & Shape
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '10px', color: '#14B8A6', backgroundColor: '#134E4A', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                      {selectedElement.customGeometry?.parts?.length || 1} parts
+                    </span>
+                  </div>
+                  <p style={{ margin: '0 0 10px 0', fontSize: '11px', color: '#94A3B8' }}>
+                    Construct and edit multi-part primitives, neon glowing accents, and procedural CAD meshes.
+                  </p>
+                  <button
+                    onClick={() => setIsShapeEditorOpen(true)}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      padding: '9px 14px',
+                      backgroundColor: '#134E4A',
+                      border: '1px solid #14B8A6',
+                      borderRadius: '8px',
+                      color: '#14B8A6',
+                      fontWeight: 700,
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      boxShadow: '0 0 12px rgba(20, 184, 166, 0.25)',
+                    }}
+                  >
+                    <Sparkles size={14} /> Edit 3D Shape / Geometry
+                  </button>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Dimensions (cm)</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginTop: '4px' }}>
+                    <div>
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>W</span>
+                      <input
+                        type="number"
+                        value={selectedElement.dimensions.width}
+                        onChange={(e) => handleElementUpdate(selectedElement._id, {
+                          dimensions: { ...selectedElement.dimensions, width: parseFloat(e.target.value) || 50 }
+                        })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>D</span>
+                      <input
+                        type="number"
+                        value={selectedElement.dimensions.depth}
+                        onChange={(e) => handleElementUpdate(selectedElement._id, {
+                          dimensions: { ...selectedElement.dimensions, depth: parseFloat(e.target.value) || 50 }
+                        })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>H</span>
+                      <input
+                        type="number"
+                        value={selectedElement.dimensions.height ?? 100}
+                        onChange={(e) => handleElementUpdate(selectedElement._id, {
+                          dimensions: { ...selectedElement.dimensions, height: parseFloat(e.target.value) || 50 }
+                        })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Position (cm)</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginTop: '4px' }}>
+                    <div>
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>X</span>
+                      <input
+                        type="number"
+                        value={selectedElement.position.x}
+                        onChange={(e) => handleElementUpdate(selectedElement._id, {
+                          position: { ...selectedElement.position, x: parseFloat(e.target.value) || 0 }
+                        })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>Y</span>
+                      <input
+                        type="number"
+                        value={selectedElement.position.y}
+                        onChange={(e) => handleElementUpdate(selectedElement._id, {
+                          position: { ...selectedElement.position, y: parseFloat(e.target.value) || 0 }
+                        })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>Z (Elev)</span>
+                      <input
+                        type="number"
+                        value={selectedElement.position.z || 0}
+                        onChange={(e) => handleElementUpdate(selectedElement._id, {
+                          position: { ...selectedElement.position, z: parseFloat(e.target.value) || 0 }
+                        })}
+                        style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '6px', fontSize: '12px' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Rotation</label>
+                    <span style={{ fontSize: '11px', color: '#A855F7' }}>{selectedElement.rotation}°</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="359"
+                    value={selectedElement.rotation}
+                    onChange={(e) => handleElementUpdate(selectedElement._id, { rotation: parseInt(e.target.value) || 0 })}
+                    style={{ width: '100%', marginTop: '4px', accentColor: '#A855F7' }}
+                  />
+                </div>
+
+                {/* Color and Material Swatches */}
+                <div>
+                  <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', fontWeight: 600 }}>Primary Color</label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                    <input
+                      type="color"
+                      value={selectedElement.color || '#14B8A6'}
+                      onChange={(e) => handleElementUpdate(selectedElement._id, { color: e.target.value })}
+                      style={{ width: '36px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', background: 'transparent' }}
+                    />
+                    <input
+                      type="text"
+                      value={selectedElement.color || '#14B8A6'}
+                      onChange={(e) => handleElementUpdate(selectedElement._id, { color: e.target.value })}
+                      style={{ flex: 1, background: '#1E293B', border: '1px solid #334155', color: '#F8FAFC', borderRadius: '6px', padding: '8px', fontSize: '12px' }}
+                    />
+                  </div>
+
+                  {/* Preset Swatches */}
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+                    {[
+                      '#14B8A6',
+                      '#F59E0B',
+                      '#8B5CF6',
+                      '#EC4899',
+                      '#06B6D4',
+                      '#10B981',
+                      '#3B82F6',
+                      '#E2E8F0',
+                      '#334155',
+                    ].map((swatch) => (
+                      <button
+                        key={swatch}
+                        onClick={() => handleElementUpdate(selectedElement._id, { color: swatch })}
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '6px',
+                          backgroundColor: swatch,
+                          border: selectedElement.color === swatch ? '2px solid #FFFFFF' : '1px solid #334155',
+                          cursor: 'pointer',
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -671,7 +1093,14 @@ export default function App() {
       <ChangelogModal
         isOpen={isChangelogOpen}
         onClose={() => setIsChangelogOpen(false)}
+      />
 
+      {/* 3D Shape & Composite Geometry Editor Modal */}
+      <ShapeEditorModal
+        isOpen={isShapeEditorOpen}
+        onClose={() => setIsShapeEditorOpen(false)}
+        element={selectedElement || null}
+        onSave={handleSaveCustomGeometry}
       />
 
       {/* Authoritative Spatial Validation & Extrusion Drawer */}

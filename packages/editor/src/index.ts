@@ -2,6 +2,7 @@
 // Public API for @bobby/editor
 
 export * from './PrimitiveEditor';
+export * from './ShapeEditorModal';
 export * from './Viewport3D';
 export * from './WallPenTool';
 export * from './AssetImporter';
