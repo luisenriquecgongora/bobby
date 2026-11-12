@@ -1,31 +1,31 @@
 # Bobby (Openvenue) Release & Distribution Architecture 🚀
 
 > **Authoritative guide for packaging, signing, and releasing Bobby CAD desktop applications and spatial engine binaries via Cloudflare R2 and GitHub Releases.**  
-> *Follows the unified PlaatoOS distribution standard established by `robot_host` and `yapper`.*
+> *Follows the same release layout as `yapper` and `emiliano`, in the personal `luisenrique-releases` bucket.*
 
 ---
 
 ## 🌐 Unified Distribution Model
 
-Bobby distributions adhere to the PlaatoOS cloud storage hierarchy. All compiled production binaries (`.msi`, `.exe`, `.dmg`, `.AppImage`) are mirrored to the dedicated Cloudflare R2 downloads bucket with zero egress fees and worldwide edge caching.
+Bobby releases live in Luis Enrique's personal Cloudflare account. All compiled production binaries (`.msi`, `.exe`, `.dmg`, `.AppImage`) are mirrored to the dedicated Cloudflare R2 downloads bucket with zero egress fees and worldwide edge caching.
 
 ### Cloudflare R2 Credentials & Endpoints
 
 | Parameter | Production Value | Description |
 | :--- | :--- | :--- |
-| **Cloudflare Account ID** | `844652102876c425902bc592a2e072b2` | PlaatoOS Cloudflare master account |
-| **Download Bucket** | `plaatoos-downloads` | Shared public binary release bucket |
-| **Public Edge Host** | `https://pub-091afdf4a9bd47fa9b641aae923852e1.r2.dev` | Global edge distribution URL |
-| **Custom Domain** *(Optional)* | `https://releases.plaatoos.com` | Requires Cloudflare R2 Custom Domain CNAME |
+| **Cloudflare Account ID** | `R2_ACCOUNT_ID` repository secret | Luis Enrique's personal Cloudflare account |
+| **Download Bucket** | `luisenrique-releases` | Public release bucket shared by bobby, emiliano, yapper and the other research projects (10 GB free tier; keep at most 3 versions per project) |
+| **Public Edge Host** | `https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev` | Global edge distribution URL |
+| **Custom Domain** *(Optional)* | None yet | Add one later with an R2 Custom Domain; the r2.dev URL is rate-limited |
 
 ---
 
 ## 📁 Object Storage Hierarchy
 
-Releases in `plaatoos-downloads` follow this exact structure under the `bobby/` prefix:
+Releases in `luisenrique-releases` follow this exact structure under the `bobby/` prefix:
 
 ```text
-plaatoos-downloads/
+luisenrique-releases/
 └── bobby/
     ├── latest/
     │   ├── Bobby-windows-x64.msi             # Canonical Windows installer (short cache / 5m)
@@ -54,10 +54,10 @@ Like `robot_host`, Bobby uses a hybrid network model:
 
 1. **Direct Binary Downloads (`.msi` / `.exe` / `.dmg`)**:
    - Web browsers downloading the setup file (`<a href="..." download>`) do **not** trigger CORS checks.
-   - Downloads stream directly from `https://pub-091afdf4a9bd47fa9b641aae923852e1.r2.dev/bobby/latest/...` at wire speed.
+   - Downloads stream directly from `https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/latest/...` at wire speed.
 
 2. **Tauri Desktop Auto-Updater**:
-   - The desktop client runs natively and polls `https://pub-091afdf4a9bd47fa9b641aae923852e1.r2.dev/bobby/latest/latest.json`.
+   - The desktop client runs natively and polls `https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/latest/latest.json`.
    - Native network clients are not subject to browser cross-origin security boundaries.
 
 3. **In-Browser Admin / Tenant Manifest Reads**:
@@ -76,7 +76,7 @@ In `apps/desktop/src-tauri/tauri.conf.json`, configure the updater plugin to pol
     "updater": {
       "active": true,
       "endpoints": [
-        "https://pub-091afdf4a9bd47fa9b641aae923852e1.r2.dev/bobby/latest/latest.json"
+        "https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/latest/latest.json"
       ],
       "dialog": true,
       "pubkey": "YOUR_TAURI_UPDATE_PUBLIC_KEY"
@@ -94,11 +94,11 @@ The updater manifest `latest.json` format:
   "platforms": {
     "windows-x86_64": {
       "signature": "...",
-      "url": "https://pub-091afdf4a9bd47fa9b641aae923852e1.r2.dev/bobby/v0.1.0/Bobby-v0.1.0-windows-x64.msi.zip"
+      "url": "https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/v0.1.0/Bobby-v0.1.0-windows-x64.msi.zip"
     },
     "darwin-universal": {
       "signature": "...",
-      "url": "https://pub-091afdf4a9bd47fa9b641aae923852e1.r2.dev/bobby/v0.1.0/Bobby-v0.1.0-darwin.app.tar.gz"
+      "url": "https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/v0.1.0/Bobby-v0.1.0-darwin.app.tar.gz"
     }
   }
 }
@@ -113,11 +113,11 @@ Update `.github/workflows/release.yml` with the Cloudflare R2 upload step:
 ```yaml
       - name: Publish Release to Cloudflare R2
         env:
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID || '844652102876c425902bc592a2e072b2' }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME || 'plaatoos-downloads' }}
-          R2_PUBLIC_URL: 'https://pub-091afdf4a9bd47fa9b641aae923852e1.r2.dev'
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME || 'luisenrique-releases' }}
+          R2_PUBLIC_URL: 'https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev'
         run: |
           node scripts/publish_bobby_to_r2.js --version ${{ github.ref_name }}
 ```
@@ -129,8 +129,8 @@ Update `.github/workflows/release.yml` with the Cloudflare R2 upload step:
 Verify uploaded artifacts via terminal:
 ```bash
 # Check manifest
-curl -i https://pub-091afdf4a9bd47fa9b641aae923852e1.r2.dev/bobby/latest/latest.json
+curl -i https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/latest/latest.json
 
 # Test download headers (should return 200 OK with content-length)
-curl -I https://pub-091afdf4a9bd47fa9b641aae923852e1.r2.dev/bobby/latest/Bobby-windows-x64.msi
+curl -I https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/latest/Bobby-windows-x64.msi
 ```
