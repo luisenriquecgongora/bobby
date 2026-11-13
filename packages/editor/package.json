@@ -1,6 +1,6 @@
 {
   "name": "@bobby/editor",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "2D/3D venue spatial constructor and parametric object editor with transform gizmos",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

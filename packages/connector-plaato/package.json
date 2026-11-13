@@ -1,6 +1,6 @@
 {
   "name": "@bobby/connector-plaato",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Safe cloud sync adapter connecting Bobby to PlaatoOS / Takient platform",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
