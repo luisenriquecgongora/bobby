@@ -1,6 +1,6 @@
 {
   "name": "@bobby/core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Core 3D spatial math, coordinate transforms, and venue scene schemas",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

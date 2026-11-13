@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/luisenriquecgongora/bobby/compare/v0.2.0...v0.2.1) (2026-11-13)
+
+
+### Bug Fixes
+
+* **desktop:** add Tauri build script and lockfile ([547cc77](https://github.com/luisenriquecgongora/bobby/commit/547cc77f10aabe38254b6f2b69ea69e9dba6dd88))
+
 ## [0.2.0](https://github.com/luisenriquecgongora/bobby/compare/v0.1.0...v0.2.0) (2026-11-13)
 
 

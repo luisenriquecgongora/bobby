@@ -1,6 +1,6 @@
 [package]
 name = "bobby"
-version = "0.2.0"
+version = "0.2.1"
 description = "Bobby - 100% Offline 3D Venue & Object Constructor"
 authors = ["Luis Enrique <luisenriquecgongora@gmail.com>"]
 edition = "2021"
