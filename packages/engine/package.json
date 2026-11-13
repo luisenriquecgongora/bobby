@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@bobby/core": "*",
-    "three": "^0.160.0"
+    "three": "^0.187.0"
   },
   "devDependencies": {
-    "@types/three": "^0.160.0",
+    "@types/three": "^0.187.0",
     "rimraf": "^5.0.5",
     "tsup": "^8.0.2",
     "typescript": "^5.4.0"
