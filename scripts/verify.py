@@ -28,6 +28,7 @@ VENV = ROOT / "services/bobby-engine/.venv"
 CHECKS: list[tuple[str, str, str, list[str]]] = [
     ("python", "ruff", ".", ["{ruff}", "check", "services/bobby-engine"]),
     ("python", "engine tests", "services/bobby-engine", ["{py}", "-m", "pytest", "-q"]),
+    ("python", "release script tests", ".", ["{py}", "-m", "unittest", "scripts/test_prune_r2_releases.py", "scripts/test_publish_release_to_r2.py"]),
     ("node", "typecheck + tests", ".", ["{yarn}", "turbo", "run", "typecheck", "test"]),
 ]
 # Linter run on each file an agent edits, by file extension ("{file}" is the file);
