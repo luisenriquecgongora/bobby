@@ -7,7 +7,7 @@
 
 ## 🌐 Unified Distribution Model
 
-Bobby releases live in Luis Enrique's personal Cloudflare account. All compiled production binaries (`.msi`, `.exe`, `.dmg`, `.AppImage`) are mirrored to the dedicated Cloudflare R2 downloads bucket with zero egress fees and worldwide edge caching.
+Bobby releases live in Luis Enrique's personal Cloudflare account. Every release is attached to its GitHub Release, and the main installer for each platform (Windows setup `.exe`, macOS `.dmg`, Linux `.AppImage`) is mirrored to the shared Cloudflare R2 downloads bucket with zero egress fees and worldwide edge caching.
 
 ### Cloudflare R2 Credentials & Endpoints
 
@@ -22,29 +22,31 @@ Bobby releases live in Luis Enrique's personal Cloudflare account. All compiled 
 
 ## 📁 Object Storage Hierarchy
 
-Releases in `luisenrique-releases` follow this exact structure under the `bobby/` prefix:
+R2 holds **one main installer per platform**, so the shared bucket stays inside the 10 GB free tier. The other formats Tauri builds (`.msi`, `.deb`, `.rpm`, `.app.tar.gz`) are only on the GitHub Release.
 
 ```text
 luisenrique-releases/
 └── bobby/
-    ├── latest/
-    │   ├── Bobby-windows-x64.msi             # Canonical Windows installer (short cache / 5m)
-    │   ├── Bobby-windows-x64.exe             # Standalone executable
-    │   ├── Bobby-darwin-universal.dmg        # macOS universal binary
-    │   ├── Bobby-linux-amd64.AppImage        # Linux portable binary
-    │   └── latest.json                       # Auto-updater manifest (60s cache)
+    ├── latest/                                  # always the newest release (5 min cache)
+    │   ├── Bobby-windows-x64-setup.exe
+    │   ├── Bobby-macos-universal.dmg
+    │   ├── Bobby-linux-x64.AppImage
+    │   └── version.json                         # no-cache
     │
-    └── v0.1.0/
-        ├── Bobby-v0.1.0-windows-x64.msi      # Immutable versioned installer (1-year cache)
-        ├── Bobby-v0.1.0-windows-x64.msi.sha256
-        ├── Bobby-v0.1.0-darwin.dmg
-        └── version.json                      # Release metadata & checksums
+    └── v0.2.0/                                  # one folder per release, newest 3 kept
+        ├── Bobby-v0.2.0-windows-x64-setup.exe   # immutable (1-year cache)
+        ├── Bobby-v0.2.0-macos-universal.dmg
+        ├── Bobby-v0.2.0-linux-x64.AppImage
+        └── version.json                         # version, date, SHA-256 and URLs per platform
 ```
 
 ### Cache Headers Policy
-- **Versioned binaries (`/v0.1.0/*`)**: `public, max-age=31536000, immutable` (safe to cache forever; content never mutates).
-- **Canonical pointers (`/latest/*`)**: `public, max-age=300` (5 minutes edge cache for fast installer downloads).
-- **Updater manifest (`latest.json`)**: `public, max-age=60, must-revalidate` (rapid rollout of updates).
+- **Versioned files (`/vX.Y.Z/*`)**: `public, max-age=31536000, immutable` (content never changes).
+- **Latest installers (`/latest/*`)**: `public, max-age=300` (5-minute edge cache).
+- **Latest manifest (`/latest/version.json`)**: `no-cache, must-revalidate`.
+
+### Retention
+`scripts/prune_r2_releases.py` keeps the newest **3** versioned folders and deletes older ones on every publish. The cap cannot be raised or switched off, and a failed prune fails the release. `latest/` is never deleted. Older versions stay downloadable from GitHub Releases.
 
 ---
 
@@ -66,7 +68,9 @@ Like `robot_host`, Bobby uses a hybrid network model:
 
 ---
 
-## 🛠️ Tauri v2 Auto-Updater Configuration
+## 🛠️ Tauri v2 Auto-Updater Configuration (planned, not set up yet)
+
+> The updater plugin is not configured and no `latest.json` is published yet. The steps below are the plan for when it is added: it needs a signing key pair, and the publish step would also have to upload the signed `.app.tar.gz` / `.msi.zip` bundles and `latest.json`.
 
 In `apps/desktop/src-tauri/tauri.conf.json`, configure the updater plugin to poll the R2 manifest:
 
@@ -108,19 +112,25 @@ The updater manifest `latest.json` format:
 
 ## 🤖 GitHub Actions Workflow Automation
 
-Update `.github/workflows/release.yml` with the Cloudflare R2 upload step:
+Every push to `master` updates the "chore: release vX.Y.Z" PR (`release-please.yml`). Merging it creates the tag and starts `release.yml`:
 
-```yaml
-      - name: Publish Release to Cloudflare R2
-        env:
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME || 'luisenrique-releases' }}
-          R2_PUBLIC_URL: 'https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev'
-        run: |
-          node scripts/publish_bobby_to_r2.js --version ${{ github.ref_name }}
+1. **`release`** (Windows, macOS universal, Linux): `tauri-action` builds the desktop app and attaches every bundle to the GitHub Release for the tag.
+2. **`publish-r2`** (after all three succeed): downloads the setup `.exe`, `.dmg` and `.AppImage` from that release, writes `version.json` (`scripts/publish_release_to_r2.py`), uploads to `bobby/vX.Y.Z/` and `bobby/latest/`, then enforces the 3-release cap.
+
+```mermaid
+flowchart LR
+    pr["Merge release PR"]:::input --> tag["Tag vX.Y.Z"]:::ours
+    tag --> win["Build Windows"]:::ours & mac["Build macOS"]:::ours & lin["Build Linux"]:::ours
+    win & mac & lin --> gh["GitHub Release<br/>all bundles"]:::output
+    gh --> pub["publish-r2<br/>3 installers + version.json"]:::ours
+    pub --> r2["R2 luisenrique-releases/bobby<br/>newest 3 kept"]:::output
+    classDef input fill:#ede9fe,stroke:#7c3aed,color:#3b0764
+    classDef ours fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    classDef output fill:#dcfce7,stroke:#16a34a,color:#14532d
 ```
+Legend: purple = what you do, blue = workflow steps, green = where the files end up.
+
+The publish step reads the repository secrets `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` and `R2_CUSTOM_DOMAIN`. Its scripts are tested by `python scripts/verify.py --only python`.
 
 ---
 
@@ -128,9 +138,9 @@ Update `.github/workflows/release.yml` with the Cloudflare R2 upload step:
 
 Verify uploaded artifacts via terminal:
 ```bash
-# Check manifest
-curl -i https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/latest/latest.json
+# Check the manifest (version, SHA-256 and URLs)
+curl -s https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/latest/version.json
 
 # Test download headers (should return 200 OK with content-length)
-curl -I https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/latest/Bobby-windows-x64.msi
+curl -I https://pub-fb9de4da4f48439ebb34b3795d05ab11.r2.dev/bobby/latest/Bobby-windows-x64-setup.exe
 ```
