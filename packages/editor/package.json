@@ -15,7 +15,7 @@
     "@bobby/core": "*",
     "@bobby/engine": "*",
     "@bobby/viewer": "*",
-    "lucide-react": "^0.359.0"
+    "lucide-react": "^1.66.0"
   },
   "peerDependencies": {
     "@react-three/drei": ">=9.80.0",
