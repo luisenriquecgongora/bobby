@@ -16,7 +16,7 @@
     "@bobby/editor": "*",
     "@bobby/engine": "*",
     "@bobby/viewer": "*",
-    "@react-three/drei": "^9.102.6",
+    "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^8.16.1",
     "@tauri-apps/api": "^2.0.0",
     "@tauri-apps/plugin-dialog": "^2.8.4",
